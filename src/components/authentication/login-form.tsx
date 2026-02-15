@@ -64,7 +64,7 @@ export function LoginForm({ ...props }: React.ComponentProps<typeof Card>) {
       toast.success("Logged in successfully!", { id: toastId });
 
       // Redirect based on role
-      const role = authData?.user?.role as string;
+      const role = (authData?.user as { role?: string })?.role ?? "";
 
       if (role === "ADMIN") {
         router.push("/admin/dashboard");

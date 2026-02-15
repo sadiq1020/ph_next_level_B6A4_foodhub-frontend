@@ -1,70 +1,142 @@
-import { Button } from "@/components/ui/button";
+"use client";
+
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import { z } from "zod";
+
 import {
   Card,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
 import {
   Field,
   FieldDescription,
+  FieldError,
   FieldGroup,
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { cn } from "@/lib/utils";
+import { authClient } from "@/lib/auth-client";
+import { Button } from "../ui/button";
 
-export function LoginForm({
-  className,
-  ...props
-}: React.ComponentProps<"div">) {
+// Zod Schema
+const formSchema = z.object({
+  email: z.string().email("Please enter a valid email"),
+  password: z.string().min(8, "Minimum length is 8"),
+});
+
+type LoginFormData = z.infer<typeof formSchema>;
+
+export function LoginForm({ ...props }: React.ComponentProps<typeof Card>) {
+  const router = useRouter();
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<LoginFormData>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
+
+  const onSubmit = async (data: LoginFormData) => {
+    const toastId = toast.loading("Logging in...");
+    try {
+      const { data: authData, error } = await authClient.signIn.email({
+        email: data.email,
+        password: data.password,
+      });
+
+      if (error) {
+        toast.error(error.message, { id: toastId });
+        return;
+      }
+
+      toast.success("Logged in successfully!", { id: toastId });
+
+      // Redirect based on role
+      const role = authData?.user?.role as string;
+
+      if (role === "ADMIN") {
+        router.push("/admin/dashboard");
+      } else if (role === "PROVIDER") {
+        router.push("/provider/dashboard");
+      } else {
+        router.push("/"); // Customer goes to home
+      }
+    } catch (err) {
+      toast.error("Something went wrong, please try again", { id: toastId });
+    }
+  };
+
   return (
-    <div className={cn("flex flex-col gap-6", className)} {...props}>
-      <Card>
-        <CardHeader>
-          <CardTitle>Login to your account</CardTitle>
-          <CardDescription>
-            Enter your email below to login to your account
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form>
-            <FieldGroup>
-              <Field>
-                <FieldLabel htmlFor="email">Email</FieldLabel>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="m@example.com"
-                  required
-                />
-              </Field>
-              <Field>
-                <div className="flex items-center">
-                  <FieldLabel htmlFor="password">Password</FieldLabel>
-                  <a
-                    href="#"
-                    className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
-                  >
-                    Forgot your password?
-                  </a>
-                </div>
-                <Input id="password" type="password" required />
-              </Field>
-              <Field>
-                <Button type="submit">Login</Button>
-                <Button variant="outline" type="button">
-                  Login with Google
-                </Button>
-                <FieldDescription className="text-center">
-                  Don&apos;t have an account? <a href="/register">Sign up</a>
-                </FieldDescription>
-              </Field>
-            </FieldGroup>
-          </form>
-        </CardContent>
-      </Card>
-    </div>
+    <Card {...props}>
+      <CardHeader>
+        <CardTitle>Welcome back</CardTitle>
+        <CardDescription>
+          Enter your credentials to sign in to your account
+        </CardDescription>
+      </CardHeader>
+
+      <CardContent>
+        <form id="login-form" onSubmit={handleSubmit(onSubmit)}>
+          <FieldGroup>
+            {/* Email */}
+            <Field data-invalid={!!errors.email}>
+              <FieldLabel htmlFor="email">Email</FieldLabel>
+              <Input
+                id="email"
+                type="email"
+                placeholder="m@example.com"
+                {...register("email")}
+              />
+              {errors.email && <FieldError errors={[errors.email]} />}
+            </Field>
+
+            {/* Password */}
+            <Field data-invalid={!!errors.password}>
+              <FieldLabel htmlFor="password">Password</FieldLabel>
+              <Input
+                id="password"
+                type="password"
+                placeholder="Enter your password"
+                {...register("password")}
+              />
+              {errors.password && <FieldError errors={[errors.password]} />}
+            </Field>
+          </FieldGroup>
+        </form>
+      </CardContent>
+
+      {/* Footer */}
+      <CardFooter className="flex flex-col gap-5 justify-end">
+        <Button
+          form="login-form"
+          type="submit"
+          className="w-full"
+          disabled={isSubmitting}
+        >
+          {isSubmitting ? "Logging in..." : "Login"}
+        </Button>
+        <FieldDescription className="text-center">
+          Don&apos;t have an account?{" "}
+          <a
+            href="/register"
+            className="text-primary underline underline-offset-4"
+          >
+            Sign up
+          </a>
+        </FieldDescription>
+      </CardFooter>
+    </Card>
   );
 }

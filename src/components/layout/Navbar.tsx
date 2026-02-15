@@ -113,7 +113,7 @@ const Navbar = ({ className }: { className?: string }) => {
     );
   };
 
-  // ✅ Auth section - shows skeleton, user avatar, or login/register buttons
+  // Auth section - shows skeleton, user avatar, or login/register buttons
   const renderAuthSection = () => {
     // Show skeleton while checking session
     if (isPending) {

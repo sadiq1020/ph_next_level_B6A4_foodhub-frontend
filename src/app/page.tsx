@@ -1,3 +1,4 @@
+import { Footer } from "@/components/layout/Footer";
 import { Navbar } from "@/components/layout/Navbar";
 import { authClient } from "@/lib/auth-client";
 
@@ -7,6 +8,7 @@ export default async function Home() {
   return (
     <div>
       <Navbar />
+      <Footer />
     </div>
   );
 }

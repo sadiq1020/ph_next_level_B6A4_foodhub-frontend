@@ -71,7 +71,7 @@ export function LoginForm({ ...props }: React.ComponentProps<typeof Card>) {
       } else if (role === "PROVIDER") {
         router.push("/provider/dashboard");
       } else {
-        router.push("/"); // Customer goes to home
+        router.push("/"); // Customer goes to home, can not use better-auth callbackURL because of different types of destinations based on role
       }
     } catch (err) {
       toast.error("Something went wrong, please try again", { id: toastId });

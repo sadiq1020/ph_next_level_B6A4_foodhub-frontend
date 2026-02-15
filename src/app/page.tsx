@@ -1,3 +1,4 @@
+import { CategoriesSection } from "@/components/home/CategoriesSection";
 import { HeroSection } from "@/components/home/HeroSection";
 import { Footer } from "@/components/layout/Footer";
 import { Navbar } from "@/components/layout/Navbar";
@@ -10,6 +11,7 @@ export default async function Home() {
     <div>
       <Navbar />
       <HeroSection />
+      <CategoriesSection />
       <Footer />
     </div>
   );

@@ -1,13 +1,14 @@
 // Server Component - no "use client"
 
+import { Category } from "@/types";
 import { CategoryCard } from "./CategoryCard";
 
-type Category = {
-  id: string;
-  name: string;
-  image?: string | null;
-  _count?: { meals: number };
-};
+// type Category = {
+//   id: string;
+//   name: string;
+//   image?: string | null;
+//   _count?: { meals: number };
+// };
 
 // Server-side fetch with Next.js built-in fetch
 async function getCategories(): Promise<Category[]> {

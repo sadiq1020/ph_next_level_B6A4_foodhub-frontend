@@ -10,13 +10,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { api } from "@/lib/api";
+import { Category } from "@/types";
 import { SlidersHorizontal, X } from "lucide-react";
 import { useEffect, useState } from "react";
 
-type Category = {
-  id: string;
-  name: string;
-};
+// type Category = {
+//   id: string;
+//   name: string;
+// };
 
 export type FilterState = {
   search: string;

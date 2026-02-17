@@ -1,22 +1,23 @@
 // Server Component - no "use client"
 import { Button } from "@/components/ui/button";
+import { Meal } from "@/types";
 import Link from "next/link";
 import { MealCard } from "../meals/MealCard";
 
-type Meal = {
-  id: string;
-  name: string;
-  price: number;
-  image?: string | null;
-  dietary?: string | null;
-  isAvailable?: boolean;
-  provider: {
-    businessName: string;
-  };
-  category: {
-    name: string;
-  };
-};
+// type Meal = {
+//   id: string;
+//   name: string;
+//   price: number;
+//   image?: string | null;
+//   dietary?: string | null;
+//   isAvailable?: boolean;
+//   provider: {
+//     businessName: string;
+//   };
+//   category: {
+//     name: string;
+//   };
+// };
 
 async function getFeaturedMeals(): Promise<Meal[]> {
   try {

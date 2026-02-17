@@ -2,15 +2,16 @@
 "use client";
 
 import { Card } from "@/components/ui/card";
+import { Category } from "@/types";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 
-type Category = {
-  id: string;
-  name: string;
-  image?: string | null;
-  _count?: { meals: number };
-};
+// type Category = {
+//   id: string;
+//   name: string;
+//   image?: string | null;
+//   _count?: { meals: number };
+// };
 
 export function CategoryCard({ category }: { category: Category }) {
   const router = useRouter();

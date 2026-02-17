@@ -5,20 +5,21 @@ import { FilterState, MealFilters } from "@/components/meals/MealFilters";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { api } from "@/lib/api";
+import { Meal } from "@/types";
 import { UtensilsCrossed } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
-type Meal = {
-  id: string;
-  name: string;
-  price: number;
-  image?: string | null;
-  dietary?: string | null;
-  isAvailable?: boolean;
-  provider: { businessName: string };
-  category: { name: string };
-};
+// type Meal = {
+//   id: string;
+//   name: string;
+//   price: number;
+//   image?: string | null;
+//   dietary?: string | null;
+//   isAvailable?: boolean;
+//   provider: { businessName: string };
+//   category: { name: string };
+// };
 
 // ✅ Loading skeleton grid
 function MealsGridSkeleton() {

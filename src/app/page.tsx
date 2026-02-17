@@ -7,13 +7,15 @@ import { Suspense } from "react";
 
 export default function Home() {
   return (
-    <main>
+    <>
+      {/* <Navbar> */}
       <HeroSection />
       <CategoriesSection />
       <Suspense fallback={<FeaturedMealsSkeleton />}>
         <FeaturedMeals />
       </Suspense>
       <HowItWorks />
-    </main>
+      {/* </Navbar> */}
+    </>
   );
 }

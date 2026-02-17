@@ -1,6 +1,8 @@
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+import { env } from "@/env";
 
-// ✅ GET request
+const BASE_URL = env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+
+// GET request
 const get = async (endpoint: string) => {
   const res = await fetch(`${BASE_URL}${endpoint}`, {
     headers: {
@@ -18,8 +20,8 @@ const get = async (endpoint: string) => {
   return data;
 };
 
-// ✅ POST request
-const post = async (endpoint: string, body: any) => {
+//  POST request
+const post = async (endpoint: string, body: unknown) => {
   const res = await fetch(`${BASE_URL}${endpoint}`, {
     method: "POST",
     headers: {
@@ -38,8 +40,8 @@ const post = async (endpoint: string, body: any) => {
   return data;
 };
 
-// ✅ PUT request
-const put = async (endpoint: string, body: any) => {
+//  PUT request
+const put = async (endpoint: string, body: unknown) => {
   const res = await fetch(`${BASE_URL}${endpoint}`, {
     method: "PUT",
     headers: {
@@ -58,8 +60,8 @@ const put = async (endpoint: string, body: any) => {
   return data;
 };
 
-// ✅ PATCH request
-const patch = async (endpoint: string, body: any) => {
+//  PATCH request
+const patch = async (endpoint: string, body: unknown) => {
   const res = await fetch(`${BASE_URL}${endpoint}`, {
     method: "PATCH",
     headers: {
@@ -78,7 +80,7 @@ const patch = async (endpoint: string, body: any) => {
   return data;
 };
 
-// ✅ DELETE request
+//  DELETE request
 const del = async (endpoint: string) => {
   const res = await fetch(`${BASE_URL}${endpoint}`, {
     method: "DELETE",

@@ -1,18 +1,19 @@
 import { CategoriesSection } from "@/components/home/CategoriesSection";
+import { FeaturedMeals } from "@/components/home/FeaturedMeals";
+import { FeaturedMealsSkeleton } from "@/components/home/FeaturedMealsSkeleton";
 import { HeroSection } from "@/components/home/HeroSection";
-import { Footer } from "@/components/layout/Footer";
-import { Navbar } from "@/components/layout/Navbar";
-import { authClient } from "@/lib/auth-client";
+import { HowItWorks } from "@/components/home/HowItWorks";
+import { Suspense } from "react";
 
-export default async function Home() {
-  const session = await authClient.getSession();
-  console.log(session);
+export default function Home() {
   return (
-    <div>
-      <Navbar />
+    <main>
       <HeroSection />
       <CategoriesSection />
-      <Footer />
-    </div>
+      <Suspense fallback={<FeaturedMealsSkeleton />}>
+        <FeaturedMeals />
+      </Suspense>
+      <HowItWorks />
+    </main>
   );
 }

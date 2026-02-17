@@ -1,5 +1,6 @@
+import { env } from "@/env";
 import { betterAuth } from "better-auth";
 
 export const auth = betterAuth({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000",
+  baseURL: env.NEXT_PUBLIC_API_URL || "http://localhost:5000",
 });

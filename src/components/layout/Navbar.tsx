@@ -66,6 +66,9 @@ const Navbar = ({ className }: { className?: string }) => {
       return (
         <>
           <DropdownMenuItem asChild>
+            <Link href="/profile">Profile</Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem asChild>
             <Link href="/admin/dashboard">Admin Panel</Link>
           </DropdownMenuItem>
           <DropdownMenuSeparator />
@@ -79,6 +82,9 @@ const Navbar = ({ className }: { className?: string }) => {
     if (role === "PROVIDER") {
       return (
         <>
+          <DropdownMenuItem asChild>
+            <Link href="/profile">Profile</Link>
+          </DropdownMenuItem>
           <DropdownMenuItem asChild>
             <Link href="/provider/dashboard">Dashboard</Link>
           </DropdownMenuItem>
@@ -266,12 +272,20 @@ const Navbar = ({ className }: { className?: string }) => {
 
                           {/* Role-based mobile links */}
                           {role === "ADMIN" && (
-                            <Button asChild variant="outline">
-                              <Link href="/admin/dashboard">Admin Panel</Link>
-                            </Button>
+                            <>
+                              <Button asChild variant="outline">
+                                <Link href="/profile">Profile</Link>{" "}
+                              </Button>
+                              <Button asChild variant="outline">
+                                <Link href="/admin/dashboard">Admin Panel</Link>
+                              </Button>
+                            </>
                           )}
                           {role === "PROVIDER" && (
                             <>
+                              <Button asChild variant="outline">
+                                <Link href="/profile">Profile</Link>{" "}
+                              </Button>
                               <Button asChild variant="outline">
                                 <Link href="/provider/dashboard">
                                   Dashboard

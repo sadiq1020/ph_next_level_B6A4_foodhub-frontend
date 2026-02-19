@@ -134,7 +134,9 @@ export function MealCard({ meal }: { meal: Meal }) {
             >
               <ShoppingCart className="w-3 h-3" />
               {/* ✅ Show different text based on login status */}
-              {session?.user ? "Add to Cart" : "Login to Add"}
+              <span suppressHydrationWarning>
+                {session?.user ? "Add to Cart" : "Login to Add"}
+              </span>
             </Button>
           )}
         </div>

@@ -153,7 +153,7 @@ export function MealFormDialog({
         providerId,
         price: Number(data.price),
         image: data.image || null,
-        dietary: data.dietary ? [data.dietary] : null, // ✅ Wrap in array
+        dietary: data.dietary ? [data.dietary] : null,
         description: data.description || null,
       };
 

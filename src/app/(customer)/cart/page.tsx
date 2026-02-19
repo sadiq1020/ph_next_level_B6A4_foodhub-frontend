@@ -56,7 +56,7 @@ export default function CartPage() {
           </p>
           <Button
             asChild
-            className="rounded-full bg-linear-to-r from-orange-500 to-rose-500 hover:from-orange-600 hover:to-rose-600 border-0 text-white px-8"
+            className="rounded-full bg-gradient-to-r from-orange-500 to-rose-500 hover:from-orange-600 hover:to-rose-600 border-0 text-white px-8"
           >
             <Link href="/meals">Browse Meals</Link>
           </Button>
@@ -75,7 +75,11 @@ export default function CartPage() {
               <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">
                 My Cart
               </h1>
-              <p className="text-zinc-500 dark:text-zinc-400 text-sm mt-0.5">
+              {/* ✅ Suppress hydration warning for cart count */}
+              <p
+                className="text-zinc-500 dark:text-zinc-400 text-sm mt-0.5"
+                suppressHydrationWarning
+              >
                 {items.length} item{items.length !== 1 ? "s" : ""}
               </p>
             </div>
@@ -91,7 +95,8 @@ export default function CartPage() {
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-8">
+      {/* ✅ Suppress hydration warning for entire cart content */}
+      <div className="container mx-auto px-4 py-8" suppressHydrationWarning>
         <div className="flex flex-col lg:flex-row gap-8">
           {/* ── Left: Cart Items ── */}
           <div className="flex-1 space-y-3">
@@ -162,7 +167,7 @@ export default function CartPage() {
               {/* Checkout Button */}
               <Button
                 asChild
-                className="w-full rounded-full bg-linear-to-r from-orange-500 to-rose-500 hover:from-orange-600 hover:to-rose-600 border-0 text-white h-11 gap-2"
+                className="w-full rounded-full bg-gradient-to-r from-orange-500 to-rose-500 hover:from-orange-600 hover:to-rose-600 border-0 text-white h-11 gap-2"
               >
                 <Link href="/checkout">
                   Proceed to Checkout

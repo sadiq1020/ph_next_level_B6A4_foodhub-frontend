@@ -55,3 +55,33 @@ export type CartItem = {
   quantity: number;
   image?: string | null;
 };
+
+// ── Orders ───────────────────────────────────────────────
+export type Order = {
+  id: string;
+  orderNumber: string;
+  status: "PLACED" | "PREPARING" | "READY" | "DELIVERED" | "CANCELLED";
+  total: number;
+  subtotal: number;
+  deliveryFee: number;
+  deliveryAddress: string;
+  phone: string;
+  notes?: string | null;
+  createdAt: string;
+  updatedAt: string;
+  _count?: {
+    orderItems: number;
+  };
+  items?: OrderItem[];
+};
+
+export type OrderItem = {
+  id: string;
+  quantity: number;
+  price: number;
+  meal: {
+    id: string;
+    name: string;
+    image?: string | null;
+  };
+};

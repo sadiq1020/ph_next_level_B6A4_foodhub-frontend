@@ -23,14 +23,14 @@ type CartStore = {
 
 // ── Store ─────────────────────────────────────────────
 export const useCart = create<CartStore>()(
-  // ✅ persist middleware handles localStorage automatically
+  //  persist middleware handles localStorage automatically
   // No useEffect needed - Zustand does it for you!
   persist(
     (set, get) => ({
       items: [],
       totalItems: 0,
 
-      // ✅ Add to cart - update quantity if already exists
+      //  Add to cart - update quantity if already exists
       addToCart: (meal, quantity) => {
         set((state) => {
           const existing = state.items.find((i) => i.mealId === meal.mealId);
@@ -50,7 +50,7 @@ export const useCart = create<CartStore>()(
         });
       },
 
-      // ✅ Remove item from cart
+      //  Remove item from cart
       removeFromCart: (mealId) => {
         set((state) => {
           const updatedItems = state.items.filter((i) => i.mealId !== mealId);
@@ -61,7 +61,7 @@ export const useCart = create<CartStore>()(
         });
       },
 
-      // ✅ Update quantity - remove if 0
+      //  Update quantity - remove if 0
       updateQuantity: (mealId, quantity) => {
         set((state) => {
           const updatedItems =
@@ -78,10 +78,10 @@ export const useCart = create<CartStore>()(
         });
       },
 
-      // ✅ Clear entire cart
+      //  Clear entire cart
       clearCart: () => set({ items: [], totalItems: 0 }),
 
-      // ✅ Calculate total price
+      //  Calculate total price
       getCartTotal: () => {
         return get().items.reduce(
           (total, item) => total + item.price * item.quantity,

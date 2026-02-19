@@ -8,13 +8,11 @@ import {
   UserCog,
   Users,
 } from "lucide-react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
+import { QuickActionCard } from "@/components/admin/QuickActionCard";
+import { StatCard } from "@/components/admin/StatCard";
 import { api } from "@/lib/api";
 import { useSession } from "@/lib/auth-client";
 
@@ -32,7 +30,7 @@ export default function AdminDashboard() {
   const [stats, setStats] = useState<AdminStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // ✅ Protected route - admin only
+  // Protected route
   useEffect(() => {
     if (!isPending && !session?.user) {
       router.push("/login");
@@ -46,7 +44,7 @@ export default function AdminDashboard() {
     }
   }, [session, isPending, router]);
 
-  // ✅ Fetch dashboard stats
+  // Fetch stats
   useEffect(() => {
     const fetchStats = async () => {
       if (!session?.user) return;
@@ -80,11 +78,14 @@ export default function AdminDashboard() {
   const user = session.user as { name: string; role?: string };
 
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
-      {/* Page Header */}
+    <div
+      className="min-h-screen bg-zinc-50 dark:bg-zinc-950"
+      suppressHydrationWarning
+    >
+      {/* Header */}
       <div className="bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800">
-        <div className="container mx-auto px-4 py-8">
-          <div className="flex items-center gap-4 mb-4">
+        <div className="container mx-auto px-4 py-8 " suppressHydrationWarning>
+          <div className="flex items-center gap-4">
             <div className="w-16 h-16 rounded-full bg-orange-100 dark:bg-orange-950/50 flex items-center justify-center">
               <Settings className="w-8 h-8 text-orange-500" />
             </div>
@@ -101,137 +102,71 @@ export default function AdminDashboard() {
       </div>
 
       <div className="container mx-auto px-4 py-8">
-        {/* Stats Grid - 3 cards instead of 4 */}
+        {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          {/* Total Users */}
-          <Card className="p-6 border border-zinc-200 dark:border-zinc-800">
-            {isLoading ? (
-              <>
-                <Skeleton className="h-10 w-10 rounded-full mb-4" />
-                <Skeleton className="h-4 w-24 mb-2" />
-                <Skeleton className="h-8 w-16" />
-              </>
-            ) : (
-              <>
-                <div className="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-950/50 flex items-center justify-center mb-4">
-                  <Users className="w-6 h-6 text-blue-600 dark:text-blue-400" />
-                </div>
-                <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-1">
-                  Total Users
-                </p>
-                <p className="text-3xl font-bold text-zinc-900 dark:text-zinc-50">
-                  {stats?.totalUsers || 0}
-                </p>
-                <p className="text-xs text-zinc-400 mt-2">
-                  {stats?.totalCustomers || 0} customers •{" "}
-                  {stats?.totalProviders || 0} providers
-                </p>
-              </>
-            )}
-          </Card>
+          <StatCard
+            icon={Users}
+            iconColor="text-blue-600 dark:text-blue-400"
+            iconBgColor="bg-blue-100 dark:bg-blue-950/50"
+            label="Total Users"
+            value={stats?.totalUsers || 0}
+            subtext={`${stats?.totalCustomers || 0} customers • ${stats?.totalProviders || 0} providers`}
+            isLoading={isLoading}
+          />
 
-          {/* Total Orders */}
-          <Card className="p-6 border border-zinc-200 dark:border-zinc-800">
-            {isLoading ? (
-              <>
-                <Skeleton className="h-10 w-10 rounded-full mb-4" />
-                <Skeleton className="h-4 w-24 mb-2" />
-                <Skeleton className="h-8 w-16" />
-              </>
-            ) : (
-              <>
-                <div className="w-12 h-12 rounded-full bg-green-100 dark:bg-green-950/50 flex items-center justify-center mb-4">
-                  <ShoppingBag className="w-6 h-6 text-green-600 dark:text-green-400" />
-                </div>
-                <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-1">
-                  Total Orders
-                </p>
-                <p className="text-3xl font-bold text-zinc-900 dark:text-zinc-50">
-                  {stats?.totalOrders || 0}
-                </p>
-              </>
-            )}
-          </Card>
+          <StatCard
+            icon={ShoppingBag}
+            iconColor="text-green-600 dark:text-green-400"
+            iconBgColor="bg-green-100 dark:bg-green-950/50"
+            label="Total Orders"
+            value={stats?.totalOrders || 0}
+            isLoading={isLoading}
+          />
 
-          {/* Total Categories */}
-          <Card className="p-6 border border-zinc-200 dark:border-zinc-800">
-            {isLoading ? (
-              <>
-                <Skeleton className="h-10 w-10 rounded-full mb-4" />
-                <Skeleton className="h-4 w-24 mb-2" />
-                <Skeleton className="h-8 w-16" />
-              </>
-            ) : (
-              <>
-                <div className="w-12 h-12 rounded-full bg-purple-100 dark:bg-purple-950/50 flex items-center justify-center mb-4">
-                  <List className="w-6 h-6 text-purple-600 dark:text-purple-400" />
-                </div>
-                <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-1">
-                  Total Categories
-                </p>
-                <p className="text-3xl font-bold text-zinc-900 dark:text-zinc-50">
-                  {stats?.totalCategories || 0}
-                </p>
-              </>
-            )}
-          </Card>
+          <StatCard
+            icon={List}
+            iconColor="text-purple-600 dark:text-purple-400"
+            iconBgColor="bg-purple-100 dark:bg-purple-950/50"
+            label="Total Categories"
+            value={stats?.totalCategories || 0}
+            isLoading={isLoading}
+          />
         </div>
 
         {/* Quick Actions */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* Manage Users */}
-          <Card className="p-8 border border-zinc-200 dark:border-zinc-800 hover:border-blue-300 dark:hover:border-blue-700 transition-all cursor-pointer group">
-            <Link href="/admin/users" className="block">
-              <div className="w-16 h-16 rounded-full bg-blue-100 dark:bg-blue-950/50 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                <UserCog className="w-8 h-8 text-blue-500" />
-              </div>
-              <h3 className="text-xl font-bold text-zinc-900 dark:text-zinc-50 mb-2">
-                Manage Users
-              </h3>
-              <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-4">
-                View and manage all users, suspend or activate accounts
-              </p>
-              <Button variant="outline" className="w-full rounded-full">
-                View Users
-              </Button>
-            </Link>
-          </Card>
+          <QuickActionCard
+            href="/admin/users"
+            icon={UserCog}
+            iconColor="text-blue-500"
+            iconBgColor="bg-blue-100 dark:bg-blue-950/50"
+            hoverBorderColor="hover:border-blue-300 dark:hover:border-blue-700"
+            title="Manage Users"
+            description="View and manage all users, suspend or activate accounts"
+            buttonText="View Users"
+          />
 
-          {/* View Orders */}
-          <Card className="p-8 border border-zinc-200 dark:border-zinc-800 hover:border-green-300 dark:hover:border-green-700 transition-all cursor-pointer group">
-            <Link href="/admin/orders" className="block">
-              <div className="w-16 h-16 rounded-full bg-green-100 dark:bg-green-950/50 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                <Package className="w-8 h-8 text-green-500" />
-              </div>
-              <h3 className="text-xl font-bold text-zinc-900 dark:text-zinc-50 mb-2">
-                View Orders
-              </h3>
-              <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-4">
-                Monitor all orders across the platform
-              </p>
-              <Button variant="outline" className="w-full rounded-full">
-                View Orders
-              </Button>
-            </Link>
-          </Card>
+          <QuickActionCard
+            href="/admin/orders"
+            icon={Package}
+            iconColor="text-green-500"
+            iconBgColor="bg-green-100 dark:bg-green-950/50"
+            hoverBorderColor="hover:border-green-300 dark:hover:border-green-700"
+            title="View Orders"
+            description="Monitor all orders across the platform"
+            buttonText="View Orders"
+          />
 
-          {/* Manage Categories */}
-          <Card className="p-8 border border-zinc-200 dark:border-zinc-800 hover:border-purple-300 dark:hover:border-purple-700 transition-all cursor-pointer group">
-            <Link href="/admin/categories" className="block">
-              <div className="w-16 h-16 rounded-full bg-purple-100 dark:bg-purple-950/50 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                <List className="w-8 h-8 text-purple-500" />
-              </div>
-              <h3 className="text-xl font-bold text-zinc-900 dark:text-zinc-50 mb-2">
-                Manage Categories
-              </h3>
-              <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-4">
-                Add, edit, or remove meal categories
-              </p>
-              <Button variant="outline" className="w-full rounded-full">
-                View Categories
-              </Button>
-            </Link>
-          </Card>
+          <QuickActionCard
+            href="/admin/categories"
+            icon={List}
+            iconColor="text-purple-500"
+            iconBgColor="bg-purple-100 dark:bg-purple-950/50"
+            hoverBorderColor="hover:border-purple-300 dark:hover:border-purple-700"
+            title="Manage Categories"
+            description="Add, edit, or remove meal categories"
+            buttonText="View Categories"
+          />
         </div>
       </div>
     </div>

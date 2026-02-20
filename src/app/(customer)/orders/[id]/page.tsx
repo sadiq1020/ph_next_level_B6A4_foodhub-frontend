@@ -11,6 +11,7 @@ import { OrderItemsList } from "@/components/orders/OrderItemsList";
 import { OrderStatusBadge } from "@/components/orders/OrderStatusBadge";
 import { OrderSummaryCard } from "@/components/orders/OrderSummaryCard";
 import { OrderTimeline } from "@/components/orders/OrderTimeline";
+import { ReviewForm } from "@/components/reviews/ReviewForm";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -38,6 +39,11 @@ export default function OrderDetailPage({
   const [order, setOrder] = useState<Order | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isCancelling, setIsCancelling] = useState(false);
+  const [reviewDialogOpen, setReviewDialogOpen] = useState(false);
+  const [selectedMeal, setSelectedMeal] = useState<{
+    id: string;
+    name: string;
+  } | null>(null);
 
   useEffect(() => {
     if (!isPending && !session?.user) {
@@ -86,6 +92,11 @@ export default function OrderDetailPage({
     }
   };
 
+  const handleReviewSuccess = () => {
+    toast.success("Thank you for your review!");
+    // Optionally refresh order to show review status
+  };
+
   if (isPending || isLoading) {
     return (
       <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 flex items-center justify-center">
@@ -107,6 +118,7 @@ export default function OrderDetailPage({
   };
 
   const canCancel = order.status === "PLACED";
+  const canReview = order.status === "DELIVERED";
 
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
@@ -181,7 +193,16 @@ export default function OrderDetailPage({
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-6">
             <OrderTimeline status={order.status} />
-            {order.items && <OrderItemsList items={order.items} />}
+            {order.items && (
+              <OrderItemsList
+                items={order.items}
+                canReview={canReview}
+                onReviewClick={(mealId: string, mealName: string) => {
+                  setSelectedMeal({ id: mealId, name: mealName });
+                  setReviewDialogOpen(true);
+                }}
+              />
+            )}
           </div>
 
           <div className="space-y-6">
@@ -198,6 +219,17 @@ export default function OrderDetailPage({
           </div>
         </div>
       </div>
+
+      {/* Review Dialog */}
+      {selectedMeal && (
+        <ReviewForm
+          open={reviewDialogOpen}
+          onOpenChange={setReviewDialogOpen}
+          mealId={selectedMeal.id}
+          mealName={selectedMeal.name}
+          onSuccess={handleReviewSuccess}
+        />
+      )}
     </div>
   );
 }

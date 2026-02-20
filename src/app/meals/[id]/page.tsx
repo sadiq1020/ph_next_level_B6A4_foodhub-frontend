@@ -208,7 +208,7 @@ export default async function MealDetailPage({
 
             {/* Provider */}
             <Link
-              href={`/providers/${meal.provider.id}`}
+              href={`/provider-profile/${meal.provider.id}`}
               className="flex items-center gap-3 p-3 rounded-xl border border-zinc-200 dark:border-zinc-800 hover:border-orange-300 dark:hover:border-orange-700 transition-colors group"
             >
               <div className="w-10 h-10 rounded-full bg-orange-100 dark:bg-orange-950/50 flex items-center justify-center shrink-0">

@@ -30,7 +30,7 @@ export function MealCard({ meal }: { meal: Meal }) {
   const handleAddToCart = (e: React.MouseEvent) => {
     e.stopPropagation();
 
-    // ✅ Check if logged in
+    //  Check if logged in
     if (!session?.user) {
       toast.error("Please login to add items to cart", {
         action: {
@@ -133,10 +133,8 @@ export function MealCard({ meal }: { meal: Meal }) {
               className="h-8 rounded-full bg-orange-500 hover:bg-orange-600 text-white border-0 gap-1.5 text-xs px-3"
             >
               <ShoppingCart className="w-3 h-3" />
-              {/* ✅ Show different text based on login status */}
-              <span suppressHydrationWarning>
-                {session?.user ? "Add to Cart" : "Login to Add"}
-              </span>
+              {/*  Show different text based on login status */}
+              <span suppressHydrationWarning>Add to Cart</span>
             </Button>
           )}
         </div>

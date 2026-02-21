@@ -25,7 +25,7 @@ async function getCategories(): Promise<Category[]> {
 }
 
 export async function CategoriesSection() {
-  // ✅ Direct async/await - no useEffect, no useState
+  //  Direct async/await - no useEffect, no useState
   const categories = await getCategories();
 
   return (

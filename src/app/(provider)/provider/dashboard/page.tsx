@@ -13,7 +13,7 @@ export default function ProviderDashboard() {
   const router = useRouter();
   const { data: session, isPending } = useSession();
 
-  // ✅ Protected route - provider only
+  //  Protected route - provider only
   useEffect(() => {
     if (!isPending && !session?.user) {
       router.push("/login");

@@ -45,14 +45,14 @@ export default function CheckoutPage() {
     },
   });
 
-  // ✅ Protected route
+  //  Protected route
   useEffect(() => {
     if (!isPending && !session?.user) {
       router.push("/login");
     }
   }, [session, isPending, router]);
 
-  // ✅ Redirect if cart empty
+  //  Redirect if cart empty
   useEffect(() => {
     if (items.length === 0 && !isPending) {
       toast.error("Your cart is empty");
@@ -73,7 +73,7 @@ export default function CheckoutPage() {
   const subtotal = getCartTotal();
   const total = subtotal + DELIVERY_FEE;
 
-  // ✅ Place order
+  //  Place order
   const onSubmit = async (data: CheckoutFormData) => {
     const toastId = toast.loading("Placing your order...");
 

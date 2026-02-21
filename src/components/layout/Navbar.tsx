@@ -28,6 +28,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { authClient, useSession } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { ModeToggle } from "./ModeToggle";
 
@@ -35,6 +36,7 @@ import { ModeToggle } from "./ModeToggle";
 const navLinks = [
   { title: "Home", url: "/" },
   { title: "Browse Meals", url: "/meals" },
+  { title: "Providers", url: "/providers" },
 ];
 
 const Navbar = ({ className }: { className?: string }) => {
@@ -88,12 +90,12 @@ const Navbar = ({ className }: { className?: string }) => {
           <DropdownMenuItem asChild>
             <Link href="/provider/dashboard">Dashboard</Link>
           </DropdownMenuItem>
-          <DropdownMenuItem asChild>
+          {/* <DropdownMenuItem asChild>
             <Link href="/provider/menu">My Menu</Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
             <Link href="/provider/orders">Orders</Link>
-          </DropdownMenuItem>
+          </DropdownMenuItem> */}
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={handleLogout} className="text-red-500">
             Logout
@@ -180,6 +182,14 @@ const Navbar = ({ className }: { className?: string }) => {
                 🍽️ <span className="text-orange-500">Food</span>Hub
               </span>
             </Link>
+            {/* <Link href="/" className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-orange-500 to-rose-500 flex items-center justify-center">
+                <span className="text-white text-lg">🍽️</span>
+              </div>
+              <span className="text-xl font-bold">
+                <span className="text-orange-500">Food</span>Hub
+              </span>
+            </Link> */}
 
             {/* Nav Links */}
             <NavigationMenu>
@@ -209,9 +219,21 @@ const Navbar = ({ className }: { className?: string }) => {
         <div className="block lg:hidden">
           <div className="flex items-center justify-between">
             {/* Logo */}
-            <Link href="/" className="flex items-center gap-2">
+            {/* <Link href="/" className="flex items-center gap-2">
               <span className="text-lg font-semibold tracking-tighter">
                 🍽️ FoodHub
+              </span>
+            </Link> */}
+            <Link href="/" className="flex items-center gap-2">
+              <Image
+                src="https://deifkwefumgah.cloudfront.net/foodhub-high-resolution-logo-transparent.png"
+                alt="FoodHub"
+                width={40}
+                height={40}
+                className="h-10 w-10"
+              />
+              <span className="text-xl font-bold">
+                <span className="text-orange-500">Food</span>Hub
               </span>
             </Link>
 
@@ -274,7 +296,7 @@ const Navbar = ({ className }: { className?: string }) => {
                           {role === "ADMIN" && (
                             <>
                               <Button asChild variant="outline">
-                                <Link href="/profile">Profile</Link>{" "}
+                                <Link href="/profile">Profile</Link>
                               </Button>
                               <Button asChild variant="outline">
                                 <Link href="/admin/dashboard">Admin Panel</Link>
@@ -284,19 +306,19 @@ const Navbar = ({ className }: { className?: string }) => {
                           {role === "PROVIDER" && (
                             <>
                               <Button asChild variant="outline">
-                                <Link href="/profile">Profile</Link>{" "}
+                                <Link href="/profile">Profile</Link>
                               </Button>
                               <Button asChild variant="outline">
                                 <Link href="/provider/dashboard">
                                   Dashboard
                                 </Link>
                               </Button>
-                              <Button asChild variant="outline">
+                              {/* <Button asChild variant="outline">
                                 <Link href="/provider/menu">My Menu</Link>
                               </Button>
                               <Button asChild variant="outline">
                                 <Link href="/provider/orders">Orders</Link>
-                              </Button>
+                              </Button> */}
                             </>
                           )}
                           {role === "CUSTOMER" && (

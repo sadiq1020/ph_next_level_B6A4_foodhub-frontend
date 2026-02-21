@@ -17,7 +17,7 @@ export default function CartPage() {
   const { items, updateQuantity, removeFromCart, getCartTotal, clearCart } =
     useCart();
 
-  // ✅ Protected route - redirect if not authenticated
+  //  Protected route - redirect if not authenticated
   useEffect(() => {
     if (!isPending && !session?.user) {
       router.push("/login");
@@ -39,7 +39,7 @@ export default function CartPage() {
   const subtotal = getCartTotal();
   const total = subtotal + (items.length > 0 ? DELIVERY_FEE : 0);
 
-  // ✅ Empty cart state
+  //  Empty cart state
   if (items.length === 0) {
     return (
       <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 flex items-center justify-center">
@@ -75,7 +75,7 @@ export default function CartPage() {
               <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">
                 My Cart
               </h1>
-              {/* ✅ Suppress hydration warning for cart count */}
+              {/*  Suppress hydration warning for cart count */}
               <p
                 className="text-zinc-500 dark:text-zinc-400 text-sm mt-0.5"
                 suppressHydrationWarning
@@ -95,7 +95,7 @@ export default function CartPage() {
         </div>
       </div>
 
-      {/* ✅ Suppress hydration warning for entire cart content */}
+      {/*  Suppress hydration warning for entire cart content */}
       <div className="container mx-auto px-4 py-8" suppressHydrationWarning>
         <div className="flex flex-col lg:flex-row gap-8">
           {/* ── Left: Cart Items ── */}

@@ -94,7 +94,7 @@ export function MealFilters({
     setFilters(updated);
     onFilterChange(updated);
   };
-  // ✅ Debounce search input 500ms
+  //  Debounce search input 500ms
   useEffect(() => {
     const timer = setTimeout(() => {
       handleFilterChange("search", searchInput);
@@ -102,7 +102,7 @@ export function MealFilters({
     return () => clearTimeout(timer);
   }, [searchInput]);
 
-  // ✅ Toggle dietary badge (multi-select)
+  //  Toggle dietary badge (multi-select)
   const toggleDietary = (value: string) => {
     const current = filters.dietary;
     const updated = current.includes(value)
@@ -111,7 +111,7 @@ export function MealFilters({
     handleFilterChange("dietary", updated);
   };
 
-  // ✅ Clear all filters
+  //  Clear all filters
   const clearFilters = () => {
     setFilters(DEFAULT_FILTERS);
     setSearchInput("");

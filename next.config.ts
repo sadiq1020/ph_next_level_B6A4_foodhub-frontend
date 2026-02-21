@@ -12,6 +12,7 @@ const nextConfig: NextConfig = {
         hostname: "deifkwefumgah.cloudfront.net", // for your logo
       },
     ],
+    formats: ["image/webp"],
   },
 };
 

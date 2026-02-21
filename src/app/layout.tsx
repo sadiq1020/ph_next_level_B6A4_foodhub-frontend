@@ -1,4 +1,3 @@
-import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { Footer } from "@/components/layout/Footer";
 import { Navbar } from "@/components/layout/Navbar";
 import { Toaster } from "@/components/ui/sonner";
@@ -34,7 +33,8 @@ export default function RootLayout({
         suppressHydrationWarning
       >
         {/* suggested from online - Error boundary */}
-        <ErrorBoundary>
+        {/* <ErrorBoundary> */}
+        <div>
           <ThemeProvider
             attribute="class"
             defaultTheme="system"
@@ -46,7 +46,8 @@ export default function RootLayout({
             <Toaster />
             <Footer />
           </ThemeProvider>
-        </ErrorBoundary>
+        </div>
+        {/* </ErrorBoundary> */}
       </body>
     </html>
   );

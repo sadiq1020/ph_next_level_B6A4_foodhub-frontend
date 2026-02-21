@@ -26,7 +26,7 @@ export function AddToCart({ meal }: { meal: AddToCartMeal }) {
   const increase = () => setQuantity((q) => Math.min(99, q + 1));
 
   const handleAddToCart = () => {
-    // ✅ Check if logged in
+    //  Check if logged in
     if (!session?.user) {
       toast.error("Please login to add items to cart", {
         action: {
@@ -87,7 +87,7 @@ export function AddToCart({ meal }: { meal: AddToCartMeal }) {
         className="flex-1 rounded-full bg-gradient-to-r from-orange-500 to-rose-500 hover:from-orange-600 hover:to-rose-600 border-0 text-white h-11 gap-2"
       >
         <ShoppingCart className="w-4 h-4" />
-        {/* ✅ Show different text based on login status */}
+        {/*  Show different text based on login status */}
         {session?.user
           ? `Add to Cart · ৳${quantity * meal.price}`
           : "Login to Add to Cart"}

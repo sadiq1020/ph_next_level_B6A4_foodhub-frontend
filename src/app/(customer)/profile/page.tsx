@@ -37,7 +37,7 @@ type ProfileFormData = z.infer<typeof profileSchema>;
 export default function ProfilePage() {
   const router = useRouter();
   const { data: session, isPending } = useSession();
-  const [displayName, setDisplayName] = useState(""); // ✅ Local state for display
+  const [displayName, setDisplayName] = useState(""); //  Local state for display
 
   const {
     register,
@@ -146,7 +146,7 @@ export default function ProfilePage() {
               <User className="w-10 h-10 text-orange-500" />
             </div>
             <div>
-              {/* ✅ Use displayName state */}
+              {/*  Use displayName state */}
               <h2 className="text-xl font-bold text-zinc-900 dark:text-zinc-50">
                 {displayName}
               </h2>

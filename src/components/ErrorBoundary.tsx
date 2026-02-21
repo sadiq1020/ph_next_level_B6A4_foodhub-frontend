@@ -54,6 +54,7 @@ export class ErrorBoundary extends Component<Props, State> {
       );
     }
 
+    // ✅ CRITICAL: Return children directly, not wrapped in anything
     return this.props.children;
   }
 }

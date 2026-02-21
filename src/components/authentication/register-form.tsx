@@ -113,7 +113,7 @@ export function RegisterForm({ ...props }: React.ComponentProps<typeof Card>) {
     },
   });
 
-  // ✅ Watch role to show/hide provider fields
+  //  Watch role to show/hide provider fields
   const selectedRole = watch("role");
 
   const onSubmit = async (data: RegisterFormData) => {

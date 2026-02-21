@@ -102,7 +102,7 @@ export default async function MealDetailPage({
   const { id } = await params;
   const meal = await getMeal(id);
 
-  // ✅ 404 if meal not found
+  //  404 if meal not found
   if (!meal) {
     notFound();
   }
@@ -235,7 +235,7 @@ export default async function MealDetailPage({
               <span className="text-zinc-400 text-sm">per item</span>
             </div>
 
-            {/* ✅ Add to Cart - Client Component */}
+            {/*  Add to Cart - Client Component */}
             <AddToCart
               meal={{
                 id: meal.id,

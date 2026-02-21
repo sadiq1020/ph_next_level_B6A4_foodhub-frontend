@@ -31,7 +31,7 @@ async function getFeaturedMeals(): Promise<Meal[]> {
     const data = await res.json();
     const meals = data.data || data;
 
-    // ✅ Always limit to 8 on frontend
+    //  Always limit to 8 on frontend
     return meals.slice(0, 8);
   } catch {
     return [];
@@ -59,7 +59,7 @@ export async function FeaturedMeals() {
             variant="outline"
             className="rounded-full border-zinc-300 dark:border-zinc-700 shrink-0"
           >
-            {/* ✅ Fixed arrow */}
+            {/*  Fixed arrow */}
             <Link href="/meals">View All Meals →</Link>
           </Button>
         </div>
@@ -78,7 +78,7 @@ export async function FeaturedMeals() {
               ))}
             </div>
 
-            {/* ✅ Bottom CTA - encourages user to see more */}
+            {/*  Bottom CTA - encourages user to see more */}
             <div className="text-center mt-10">
               <Button
                 asChild

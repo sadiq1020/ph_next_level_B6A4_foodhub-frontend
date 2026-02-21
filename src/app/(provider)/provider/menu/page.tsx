@@ -33,7 +33,7 @@ export default function ProviderMenuPage() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [mealToDelete, setMealToDelete] = useState<string | null>(null);
 
-  // ✅ Protected route - provider only
+  //  Protected route - provider only
   useEffect(() => {
     if (!isPending && !session?.user) {
       router.push("/login");
@@ -47,7 +47,7 @@ export default function ProviderMenuPage() {
     }
   }, [session, isPending, router]);
 
-  // ✅ Fetch provider's meals
+  //  Fetch provider's meals
   useEffect(() => {
     const fetchMeals = async () => {
       if (!session?.user) return;
@@ -79,7 +79,7 @@ export default function ProviderMenuPage() {
 
   if (!session?.user) return null;
 
-  // ✅ Delete meal handler
+  //  Delete meal handler
   const handleDelete = async () => {
     if (!mealToDelete) return;
 
@@ -100,19 +100,19 @@ export default function ProviderMenuPage() {
     }
   };
 
-  // ✅ Open edit dialog
+  //  Open edit dialog
   const handleEdit = (meal: Meal) => {
     setEditingMeal(meal);
     setIsDialogOpen(true);
   };
 
-  // ✅ Open add dialog
+  //  Open add dialog
   const handleAdd = () => {
     setEditingMeal(null);
     setIsDialogOpen(true);
   };
 
-  // ✅ After successful add/edit
+  //  After successful add/edit
   const handleMealSaved = (savedMeal: Meal) => {
     if (editingMeal) {
       // Update existing

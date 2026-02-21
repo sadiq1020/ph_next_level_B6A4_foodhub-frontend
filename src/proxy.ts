@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 export async function proxy(request: NextRequest) {
   const pathName = request.nextUrl.pathname;
 
-  // ✅ Must use process.env here - edge runtime limitation
+  //  Must use process.env here - edge runtime limitation
   const sessionRes = await fetch(
     `${process.env.NEXT_PUBLIC_API_URL}/api/auth/get-session`,
     {
@@ -41,7 +41,7 @@ export async function proxy(request: NextRequest) {
   return NextResponse.next();
 }
 
-// ✅ Only runs on these protected routes
+//  Only runs on these protected routes
 export const config = {
   matcher: [
     "/orders/:path*",

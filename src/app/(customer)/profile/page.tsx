@@ -79,9 +79,9 @@ export default function ProfilePage() {
   //   );
   // }
 
-  if (isPending) {
+  if (isPending || !session?.user) {
     return (
-      <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
+      <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 suppressHydrationWarning">
         <div className="flex items-center justify-center min-h-screen">
           <div className="w-8 h-8 border-2 border-orange-500 border-t-transparent rounded-full animate-spin" />
         </div>
@@ -89,7 +89,7 @@ export default function ProfilePage() {
     );
   }
 
-  if (!session?.user) return null;
+  // if (!session?.user) return null;
 
   const user = session.user as unknown as UserType;
 
@@ -126,7 +126,7 @@ export default function ProfilePage() {
     : "Recently";
 
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
+    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 suppressHydrationWarning">
       <div className="bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800">
         <div className="container mx-auto px-4 py-6">
           <Button

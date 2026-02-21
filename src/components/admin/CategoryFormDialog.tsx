@@ -33,7 +33,31 @@ type Category = {
 
 const categorySchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
-  image: z.string().url("Must be a valid URL").optional().or(z.literal("")),
+  image: z
+    .string()
+    .optional()
+    .refine(
+      (url) => {
+        // Allow empty string
+        if (!url || url === "") return true;
+
+        // Check if valid URL
+        try {
+          const urlObj = new URL(url);
+          const allowedDomains = [
+            "images.unsplash.com",
+            "deifkwefumgah.cloudfront.net",
+          ];
+          return allowedDomains.includes(urlObj.hostname);
+        } catch {
+          return false;
+        }
+      },
+      {
+        message:
+          "Image must be from images.unsplash.com or your CloudFront domain",
+      },
+    ),
 });
 
 type CategoryFormData = z.infer<typeof categorySchema>;
@@ -56,8 +80,6 @@ export function CategoryFormDialog({
     handleSubmit,
     formState: { errors, isSubmitting },
     reset,
-    watch,
-    setValue,
   } = useForm<CategoryFormData>({
     resolver: zodResolver(categorySchema),
     defaultValues: {
@@ -66,9 +88,7 @@ export function CategoryFormDialog({
     },
   });
 
-  const name = watch("name");
-
-  // Auto-generate slug from name
+  // Pre-fill form when editing
   useEffect(() => {
     if (category) {
       reset({
@@ -152,11 +172,11 @@ export function CategoryFormDialog({
               <Input
                 id="image"
                 type="url"
-                placeholder="https://example.com/image.jpg"
+                placeholder="https://images.unsplash.com/photo-..."
                 {...register("image")}
               />
               <FieldDescription>
-                Enter a valid image URL (optional)
+                Must be from images.unsplash.com or CloudFront (optional)
               </FieldDescription>
               {errors.image && <FieldError errors={[errors.image]} />}
             </Field>

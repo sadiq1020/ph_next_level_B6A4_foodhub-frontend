@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowLeft, Mail, Phone, User } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -37,7 +37,7 @@ type ProfileFormData = z.infer<typeof profileSchema>;
 export default function ProfilePage() {
   const router = useRouter();
   const { data: session, isPending } = useSession();
-  const [displayName, setDisplayName] = useState(""); //  Local state for display
+  // const [displayName, setDisplayName] = useState(""); //  Local state for display
 
   const {
     register,
@@ -71,10 +71,20 @@ export default function ProfilePage() {
     }
   }, [session, reset]);
 
+  // if (isPending) {
+  //   return (
+  //     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 flex items-center justify-center">
+  //       <div className="w-8 h-8 border-2 border-orange-500 border-t-transparent rounded-full animate-spin" />
+  //     </div>
+  //   );
+  // }
+
   if (isPending) {
     return (
-      <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-orange-500 border-t-transparent rounded-full animate-spin" />
+      <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="w-8 h-8 border-2 border-orange-500 border-t-transparent rounded-full animate-spin" />
+        </div>
       </div>
     );
   }
@@ -93,7 +103,7 @@ export default function ProfilePage() {
       });
 
       // Update local display name instantly
-      setDisplayName(data.name);
+      // setDisplayName(data.name);
 
       toast.success("Profile updated successfully!", { id: toastId });
 
@@ -148,7 +158,7 @@ export default function ProfilePage() {
             <div>
               {/*  Use displayName state */}
               <h2 className="text-xl font-bold text-zinc-900 dark:text-zinc-50">
-                {displayName}
+                {user.name}
               </h2>
               <p className="text-sm text-zinc-500 dark:text-zinc-400">
                 {user.email}

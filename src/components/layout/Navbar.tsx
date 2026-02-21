@@ -1,6 +1,6 @@
 "use client";
 
-import { Menu } from "lucide-react";
+import { Menu, ShoppingCart } from "lucide-react"; // ✅ Add ShoppingCart
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -28,6 +28,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useCart } from "@/context/CartContext"; // ✅ Add this
 import { authClient, useSession } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
 import logo from "../../../public/images/logo.png";
@@ -35,7 +36,6 @@ import { ModeToggle } from "./ModeToggle";
 
 // nav links
 const navLinks = [
-  { title: "Home", url: "/" },
   { title: "Browse Meals", url: "/meals" },
   { title: "Providers", url: "/providers" },
 ];
@@ -43,9 +43,16 @@ const navLinks = [
 const Navbar = ({ className }: { className?: string }) => {
   const { data: session, isPending } = useSession();
   const router = useRouter();
+  const { items } = useCart(); // ✅ Get cart items
 
   const user = session?.user;
   const role = (user as { role?: string })?.role ?? "";
+
+  // ✅ Calculate total items in cart
+  const cartItemsCount = items.reduce(
+    (total, item) => total + item.quantity,
+    0,
+  );
 
   // Get user initials for avatar
   const getInitials = (name: string) => {
@@ -198,8 +205,20 @@ const Navbar = ({ className }: { className?: string }) => {
             </NavigationMenu>
           </div>
 
-          {/* Right: Mode Toggle + Auth */}
+          {/* Right: Cart + Mode Toggle + Auth */}
           <div className="flex items-center gap-2">
+            {/* ✅ Cart Button */}
+            <Button asChild variant="outline" size="icon" className="relative">
+              <Link href="/cart">
+                <ShoppingCart className="w-4 h-4" />
+                {cartItemsCount > 0 && (
+                  <span className="absolute -top-1 -right-1 w-5 h-5 bg-orange-500 text-white text-xs rounded-full flex items-center justify-center font-semibold">
+                    {cartItemsCount}
+                  </span>
+                )}
+              </Link>
+            </Button>
+
             <ModeToggle />
             {renderAuthSection()}
           </div>
@@ -222,8 +241,25 @@ const Navbar = ({ className }: { className?: string }) => {
               </span>
             </Link>
 
-            {/* Right side: Mode toggle + hamburger */}
+            {/* Right side: Cart + Mode toggle + hamburger */}
             <div className="flex items-center gap-2">
+              {/* ✅ Mobile Cart Button */}
+              <Button
+                asChild
+                variant="outline"
+                size="icon"
+                className="relative"
+              >
+                <Link href="/cart">
+                  <ShoppingCart className="w-4 h-4" />
+                  {cartItemsCount > 0 && (
+                    <span className="absolute -top-1 -right-1 w-5 h-5 bg-orange-500 text-white text-xs rounded-full flex items-center justify-center font-semibold">
+                      {cartItemsCount}
+                    </span>
+                  )}
+                </Link>
+              </Button>
+
               <ModeToggle />
               <Sheet>
                 <SheetTrigger asChild>

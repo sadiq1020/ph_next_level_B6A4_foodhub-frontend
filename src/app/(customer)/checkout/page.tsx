@@ -53,12 +53,12 @@ export default function CheckoutPage() {
   }, [session, isPending, router]);
 
   //  Redirect if cart empty
-  useEffect(() => {
-    if (items.length === 0 && !isPending) {
-      toast.error("Your cart is empty");
-      router.push("/meals");
-    }
-  }, [items, isPending, router]);
+  // useEffect(() => {
+  //   if (items.length === 0 && !isPending) {
+  //     toast.error("Your cart is empty");
+  //     router.push("/meals");
+  //   }
+  // }, [items, isPending, router]);
 
   if (isPending) {
     return (

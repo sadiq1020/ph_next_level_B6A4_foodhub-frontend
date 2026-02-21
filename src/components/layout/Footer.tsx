@@ -1,10 +1,11 @@
 import { Footer2 } from "@/components/layout/Footer2";
+
 const Footer = () => {
   return (
     <Footer2
       logo={{
         url: "/",
-        src: "https://deifkwefumgah.cloudfront.net/shadcnblocks/block/logos/shadcnblockscom-icon.svg",
+        src: "/images/logo.png", // ✅ Path to your logo in public folder
         alt: "FoodHub logo",
         title: "FoodHub",
       }}

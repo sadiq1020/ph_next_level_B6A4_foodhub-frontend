@@ -39,7 +39,28 @@ const mealSchema = z.object({
   description: z.string().optional(),
   price: z.number().min(1, "Price must be at least 1"),
   categoryId: z.string().min(1, "Category is required"),
-  image: z.string().url("Must be a valid URL").optional().or(z.literal("")),
+  image: z
+    .string()
+    .optional()
+    .refine(
+      (url) => {
+        // Allow empty string
+        if (!url || url === "") return true;
+
+        // Check if valid URL
+        try {
+          const urlObj = new URL(url);
+          const allowedDomains = ["images.unsplash.com"];
+          return allowedDomains.includes(urlObj.hostname);
+        } catch {
+          return false;
+        }
+      },
+      {
+        message:
+          "Image must be from images.unsplash.com or your CloudFront domain",
+      },
+    ),
   dietary: z.string().optional(),
 });
 

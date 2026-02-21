@@ -1,7 +1,9 @@
 "use client";
 
 import { Menu } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -28,8 +30,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { authClient, useSession } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
-import Image from "next/image";
-import { useRouter } from "next/navigation";
+import logo from "../../../public/images/logo.png";
 import { ModeToggle } from "./ModeToggle";
 
 // nav links
@@ -90,12 +91,6 @@ const Navbar = ({ className }: { className?: string }) => {
           <DropdownMenuItem asChild>
             <Link href="/provider/dashboard">Dashboard</Link>
           </DropdownMenuItem>
-          {/* <DropdownMenuItem asChild>
-            <Link href="/provider/menu">My Menu</Link>
-          </DropdownMenuItem>
-          <DropdownMenuItem asChild>
-            <Link href="/provider/orders">Orders</Link>
-          </DropdownMenuItem> */}
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={handleLogout} className="text-red-500">
             Logout
@@ -123,7 +118,6 @@ const Navbar = ({ className }: { className?: string }) => {
 
   // Auth section - shows skeleton, user avatar, or login/register buttons
   const renderAuthSection = () => {
-    // Show skeleton while checking session
     if (isPending) {
       return (
         <div className="flex items-center gap-2">
@@ -132,7 +126,6 @@ const Navbar = ({ className }: { className?: string }) => {
       );
     }
 
-    // Show user avatar dropdown if logged in
     if (user) {
       return (
         <DropdownMenu>
@@ -144,7 +137,6 @@ const Navbar = ({ className }: { className?: string }) => {
             </Avatar>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-48">
-            {/* User info header */}
             <div className="px-2 py-1.5">
               <p className="text-sm font-medium">{user.name}</p>
               <p className="text-xs text-muted-foreground">{user.email}</p>
@@ -156,7 +148,6 @@ const Navbar = ({ className }: { className?: string }) => {
       );
     }
 
-    // Show login/register if not logged in
     return (
       <>
         <Button asChild variant="outline" size="sm">
@@ -178,18 +169,17 @@ const Navbar = ({ className }: { className?: string }) => {
           <div className="flex items-center gap-6">
             {/* Logo */}
             <Link href="/" className="flex items-center gap-2">
-              <span className="text-lg font-semibold tracking-tighter">
-                🍽️ <span className="text-orange-500">Food</span>Hub
-              </span>
-            </Link>
-            {/* <Link href="/" className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-orange-500 to-rose-500 flex items-center justify-center">
-                <span className="text-white text-lg">🍽️</span>
-              </div>
+              <Image
+                src={logo}
+                alt="FoodHub"
+                width={40}
+                height={40}
+                className="h-10 w-10"
+              />
               <span className="text-xl font-bold">
                 <span className="text-orange-500">Food</span>Hub
               </span>
-            </Link> */}
+            </Link>
 
             {/* Nav Links */}
             <NavigationMenu>
@@ -219,17 +209,12 @@ const Navbar = ({ className }: { className?: string }) => {
         <div className="block lg:hidden">
           <div className="flex items-center justify-between">
             {/* Logo */}
-            {/* <Link href="/" className="flex items-center gap-2">
-              <span className="text-lg font-semibold tracking-tighter">
-                🍽️ FoodHub
-              </span>
-            </Link> */}
             <Link href="/" className="flex items-center gap-2">
               <Image
-                src="https://deifkwefumgah.cloudfront.net/foodhub-high-resolution-logo-transparent.png"
+                src={logo}
                 alt="FoodHub"
-                width={40}
-                height={40}
+                width={30}
+                height={30}
                 className="h-10 w-10"
               />
               <span className="text-xl font-bold">
@@ -250,8 +235,15 @@ const Navbar = ({ className }: { className?: string }) => {
                   <SheetHeader>
                     <SheetTitle>
                       <Link href="/" className="flex items-center gap-2">
+                        <Image
+                          src={logo}
+                          alt="FoodHub"
+                          width={24}
+                          height={24}
+                          className="h-8 w-8"
+                        />
                         <span className="text-lg font-semibold">
-                          🍽️ FoodHub
+                          <span className="text-orange-500">Food</span>Hub
                         </span>
                       </Link>
                     </SheetTitle>
@@ -313,12 +305,6 @@ const Navbar = ({ className }: { className?: string }) => {
                                   Dashboard
                                 </Link>
                               </Button>
-                              {/* <Button asChild variant="outline">
-                                <Link href="/provider/menu">My Menu</Link>
-                              </Button>
-                              <Button asChild variant="outline">
-                                <Link href="/provider/orders">Orders</Link>
-                              </Button> */}
                             </>
                           )}
                           {role === "CUSTOMER" && (

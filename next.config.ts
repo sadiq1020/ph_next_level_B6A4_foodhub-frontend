@@ -7,10 +7,6 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "images.unsplash.com",
       },
-      {
-        protocol: "https",
-        hostname: "deifkwefumgah.cloudfront.net", // for your logo
-      },
     ],
     formats: ["image/webp"],
   },

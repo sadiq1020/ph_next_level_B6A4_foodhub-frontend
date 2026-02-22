@@ -8,20 +8,9 @@ import { api } from "@/lib/api";
 import { Meal } from "@/types";
 import { UtensilsCrossed } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { Suspense, useCallback, useEffect, useState } from "react";
 
-// type Meal = {
-//   id: string;
-//   name: string;
-//   price: number;
-//   image?: string | null;
-//   dietary?: string | null;
-//   isAvailable?: boolean;
-//   provider: { businessName: string };
-//   category: { name: string };
-// };
-
-//  Loading skeleton grid
+// Loading skeleton grid
 function MealsGridSkeleton() {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
@@ -46,7 +35,8 @@ function MealsGridSkeleton() {
   );
 }
 
-export default function AllMealsPage() {
+// ✅ Separate component that uses useSearchParams
+function MealsContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -54,8 +44,7 @@ export default function AllMealsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [totalCount, setTotalCount] = useState(0);
 
-  //  Read initial filters from URL params
-  // e.g. /meals?category=abc123 from CategoriesSection click
+  // Read initial filters from URL params
   const initialFilters = {
     search: searchParams.get("search") || "",
     categoryId: searchParams.get("category") || "",
@@ -64,7 +53,7 @@ export default function AllMealsPage() {
     maxPrice: "",
   };
 
-  //  Fetch meals with filters
+  // Fetch meals with filters
   const fetchMeals = useCallback(async (filters: FilterState) => {
     setIsLoading(true);
     try {
@@ -94,9 +83,10 @@ export default function AllMealsPage() {
   // Fetch on mount with initial URL filters
   useEffect(() => {
     fetchMeals(initialFilters as FilterState);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  //  Called by MealFilters whenever filters change
+  // Called by MealFilters whenever filters change
   const handleFilterChange = (filters: FilterState) => {
     fetchMeals(filters);
   };
@@ -119,7 +109,7 @@ export default function AllMealsPage() {
 
       <div className="container mx-auto px-4 py-8">
         <div className="flex flex-col lg:flex-row gap-8">
-          {/*  Filters Sidebar */}
+          {/* Filters Sidebar */}
           <aside className="w-full lg:w-72 shrink-0">
             <div className="sticky top-4">
               <MealFilters
@@ -129,12 +119,12 @@ export default function AllMealsPage() {
             </div>
           </aside>
 
-          {/*  Meals Grid */}
+          {/* Meals Grid */}
           <main className="flex-1">
             {isLoading ? (
               <MealsGridSkeleton />
             ) : meals.length === 0 ? (
-              //  Empty state
+              // Empty state
               <div className="flex flex-col items-center justify-center py-24 text-center">
                 <div className="w-20 h-20 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center mb-4">
                   <UtensilsCrossed className="w-8 h-8 text-zinc-400" />
@@ -165,5 +155,14 @@ export default function AllMealsPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+// ✅ Main page component with Suspense wrapper
+export default function AllMealsPage() {
+  return (
+    <Suspense fallback={<MealsGridSkeleton />}>
+      <MealsContent />
+    </Suspense>
   );
 }

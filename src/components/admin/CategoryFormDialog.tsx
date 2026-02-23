@@ -38,10 +38,7 @@ const categorySchema = z.object({
     .optional()
     .refine(
       (url) => {
-        // Allow empty string
         if (!url || url === "") return true;
-
-        // Check if valid URL
         try {
           const urlObj = new URL(url);
           const allowedDomains = [
@@ -88,7 +85,7 @@ export function CategoryFormDialog({
     },
   });
 
-  // ✅ Better approach - only reset on category change or when dialog first opens
+  // ✅ Fixed - only reset on category change
   useEffect(() => {
     if (category) {
       reset({
@@ -96,13 +93,12 @@ export function CategoryFormDialog({
         image: category.image || "",
       });
     } else if (open && !category) {
-      // Only reset to empty when opening dialog for new category
       reset({
         name: "",
         image: "",
       });
     }
-  }, [category, reset]); // ✅ Removed `open` from dependencies
+  }, [category, open, reset]);
 
   const onSubmit = async (data: CategoryFormData) => {
     const toastId = toast.loading(
@@ -114,6 +110,7 @@ export function CategoryFormDialog({
         name: data.name,
         image: data.image || null,
       };
+
       console.log("📤 Sending payload:", payload);
 
       let savedCategory;
@@ -122,6 +119,7 @@ export function CategoryFormDialog({
         savedCategory = response.data || response;
       } else {
         const response = await api.post("/categories", payload);
+        console.log("📥 Response:", response);
         savedCategory = response.data || response;
       }
 
@@ -135,7 +133,7 @@ export function CategoryFormDialog({
       onSuccess(savedCategory);
       reset();
     } catch (error: unknown) {
-      console.error("❌ Error details:", error); // ✅ Debug log
+      console.error("❌ Error details:", error);
       const message =
         error instanceof Error ? error.message : "Failed to save category";
       toast.error(message, { id: toastId });
@@ -146,7 +144,8 @@ export function CategoryFormDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         className="max-w-md"
-        onPointerDownOutside={(e) => e.preventDefault()} // ✅ Prevent closing when clicking outside
+        onPointerDownOutside={(e) => e.preventDefault()}
+        onInteractOutside={(e) => e.preventDefault()} // ✅ Also prevent other interactions
       >
         <DialogHeader>
           <DialogTitle>
@@ -161,26 +160,24 @@ export function CategoryFormDialog({
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <FieldGroup>
-            {/* Name */}
             <Field data-invalid={!!errors.name}>
               <FieldLabel htmlFor="name">Category Name *</FieldLabel>
               <Input
                 id="name"
                 placeholder="e.g., Desserts"
-                autoComplete="off" // ✅ Prevent browser autocomplete
+                autoComplete="off"
                 {...register("name")}
               />
               {errors.name && <FieldError errors={[errors.name]} />}
             </Field>
 
-            {/* Image URL */}
             <Field data-invalid={!!errors.image}>
               <FieldLabel htmlFor="image">Image URL</FieldLabel>
               <Input
                 id="image"
                 type="url"
                 placeholder="https://images.unsplash.com/photo-..."
-                autoComplete="off" // ✅ Prevent browser autocomplete
+                autoComplete="off"
                 {...register("image")}
               />
               <FieldDescription>
@@ -190,7 +187,6 @@ export function CategoryFormDialog({
             </Field>
           </FieldGroup>
 
-          {/* Actions */}
           <div className="flex justify-end gap-3 pt-4">
             <Button
               type="button"
@@ -211,7 +207,6 @@ export function CategoryFormDialog({
                   ? "Update Category"
                   : "Add Category"}
             </Button>
-            CategoryFormData
           </div>
         </form>
       </DialogContent>

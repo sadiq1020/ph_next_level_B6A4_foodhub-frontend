@@ -85,20 +85,32 @@ export function CategoryFormDialog({
     },
   });
 
-  // ✅ Fixed - only reset on category change
+  // // ✅ Fixed - only reset on category change
+  // useEffect(() => {
+  //   if (category) {
+  //     reset({
+  //       name: category.name,
+  //       image: category.image || "",
+  //     });
+  //   } else if (open && !category) {
+  //     reset({
+  //       name: "",
+  //       image: "",
+  //     });
+  //   }
+  // }, [category, open, reset]);
+
+  // ✅ Fixed - only reset when category changes, not when dialog opens/closes
   useEffect(() => {
     if (category) {
       reset({
         name: category.name,
         image: category.image || "",
       });
-    } else if (open && !category) {
-      reset({
-        name: "",
-        image: "",
-      });
     }
-  }, [category, open, reset]);
+    // If no category and dialog just opened, reset to empty
+    // But don't reset every time `open` changes
+  }, [category, reset]); // ✅ Removed `open` from dependencies
 
   const onSubmit = async (data: CategoryFormData) => {
     const toastId = toast.loading(

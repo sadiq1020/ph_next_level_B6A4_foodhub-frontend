@@ -1,9 +1,16 @@
-// const BASE_URL = env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
-// ✅ Use empty string for production (relative URLs use proxy)
-// Only use BASE_URL for local development
-// ✅ Use process.env.NODE_ENV directly (available on both client and server)
+// ✅ Improved API client with better error handling
 const BASE_URL =
   process.env.NODE_ENV === "development" ? "http://localhost:5000" : "";
+
+// Helper to parse error responses
+const parseError = async (res: Response) => {
+  try {
+    const data = await res.json();
+    return data.message || data.error || "Something went wrong";
+  } catch {
+    return `HTTP ${res.status}: ${res.statusText}`;
+  }
+};
 
 // GET request
 const get = async (endpoint: string) => {
@@ -11,19 +18,18 @@ const get = async (endpoint: string) => {
     headers: {
       "Content-Type": "application/json",
     },
-    credentials: "include", // Sends cookies automatically
+    credentials: "include",
   });
 
-  const data = await res.json();
-
   if (!res.ok) {
-    throw new Error(data.message || "Something went wrong");
+    const error = await parseError(res);
+    throw new Error(error);
   }
 
-  return data;
+  return await res.json();
 };
 
-//  POST request
+// POST request
 const post = async (endpoint: string, body: unknown) => {
   const res = await fetch(`${BASE_URL}${endpoint}`, {
     method: "POST",
@@ -34,16 +40,15 @@ const post = async (endpoint: string, body: unknown) => {
     body: JSON.stringify(body),
   });
 
-  const data = await res.json();
-
   if (!res.ok) {
-    throw new Error(data.message || "Something went wrong");
+    const error = await parseError(res);
+    throw new Error(error);
   }
 
-  return data;
+  return await res.json();
 };
 
-//  PUT request
+// PUT request
 const put = async (endpoint: string, body: unknown) => {
   const res = await fetch(`${BASE_URL}${endpoint}`, {
     method: "PUT",
@@ -54,16 +59,15 @@ const put = async (endpoint: string, body: unknown) => {
     body: JSON.stringify(body),
   });
 
-  const data = await res.json();
-
   if (!res.ok) {
-    throw new Error(data.message || "Something went wrong");
+    const error = await parseError(res);
+    throw new Error(error);
   }
 
-  return data;
+  return await res.json();
 };
 
-//  PATCH request
+// PATCH request
 const patch = async (endpoint: string, body: unknown) => {
   const res = await fetch(`${BASE_URL}${endpoint}`, {
     method: "PATCH",
@@ -74,16 +78,15 @@ const patch = async (endpoint: string, body: unknown) => {
     body: JSON.stringify(body),
   });
 
-  const data = await res.json();
-
   if (!res.ok) {
-    throw new Error(data.message || "Something went wrong");
+    const error = await parseError(res);
+    throw new Error(error);
   }
 
-  return data;
+  return await res.json();
 };
 
-//  DELETE request
+// DELETE request
 const del = async (endpoint: string) => {
   const res = await fetch(`${BASE_URL}${endpoint}`, {
     method: "DELETE",
@@ -93,16 +96,14 @@ const del = async (endpoint: string) => {
     credentials: "include",
   });
 
-  const data = await res.json();
-
   if (!res.ok) {
-    throw new Error(data.message || "Something went wrong");
+    const error = await parseError(res);
+    throw new Error(error);
   }
 
-  return data;
+  return await res.json();
 };
 
-// Export all methods
 export const api = {
   get,
   post,

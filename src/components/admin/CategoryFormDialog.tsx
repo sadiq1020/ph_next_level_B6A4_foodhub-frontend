@@ -88,22 +88,21 @@ export function CategoryFormDialog({
     },
   });
 
-  // ✅ Only reset when category changes or dialog opens, not on every render
+  // ✅ Better approach - only reset on category change or when dialog first opens
   useEffect(() => {
-    if (open) {
-      if (category) {
-        reset({
-          name: category.name,
-          image: category.image || "",
-        });
-      } else {
-        reset({
-          name: "",
-          image: "",
-        });
-      }
+    if (category) {
+      reset({
+        name: category.name,
+        image: category.image || "",
+      });
+    } else if (open && !category) {
+      // Only reset to empty when opening dialog for new category
+      reset({
+        name: "",
+        image: "",
+      });
     }
-  }, [category, open, reset]);
+  }, [category, reset]); // ✅ Removed `open` from dependencies
 
   const onSubmit = async (data: CategoryFormData) => {
     const toastId = toast.loading(
@@ -115,6 +114,7 @@ export function CategoryFormDialog({
         name: data.name,
         image: data.image || null,
       };
+      console.log("📤 Sending payload:", payload);
 
       let savedCategory;
       if (category) {
@@ -135,6 +135,7 @@ export function CategoryFormDialog({
       onSuccess(savedCategory);
       reset();
     } catch (error: unknown) {
+      console.error("❌ Error details:", error); // ✅ Debug log
       const message =
         error instanceof Error ? error.message : "Failed to save category";
       toast.error(message, { id: toastId });
@@ -210,6 +211,7 @@ export function CategoryFormDialog({
                   ? "Update Category"
                   : "Add Category"}
             </Button>
+            CategoryFormData
           </div>
         </form>
       </DialogContent>

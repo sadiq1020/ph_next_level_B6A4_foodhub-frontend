@@ -1,7 +1,12 @@
+"use client";
+
 import { Card } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { api } from "@/lib/api";
 import { ChefHat, MapPin, Store } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 
 type Provider = {
   id: string;
@@ -14,26 +19,54 @@ type Provider = {
   };
 };
 
-async function getProviders(): Promise<Provider[]> {
-  try {
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/provider-profile`,
-      {
-        next: { revalidate: 300 }, // Cache for 5 minutes
-      },
+export default function ProvidersPage() {
+  const [providers, setProviders] = useState<Provider[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchProviders = async () => {
+      try {
+        const data = await api.get("/provider-profile");
+        setProviders(data.data || data);
+      } catch (error) {
+        console.error("Failed to fetch providers:", error);
+        setProviders([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchProviders();
+  }, []);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
+        <div className="bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800">
+          <div className="container mx-auto px-4 py-12">
+            <div className="max-w-2xl">
+              <Skeleton className="h-10 w-64 mb-3" />
+              <Skeleton className="h-6 w-96" />
+            </div>
+          </div>
+        </div>
+        <div className="container mx-auto px-4 py-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <Card key={i} className="overflow-hidden">
+                <Skeleton className="w-full aspect-video" />
+                <div className="p-6">
+                  <Skeleton className="h-6 w-3/4 mb-2" />
+                  <Skeleton className="h-4 w-full mb-3" />
+                  <Skeleton className="h-4 w-1/2" />
+                </div>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </div>
     );
-
-    if (!res.ok) return [];
-
-    const data = await res.json();
-    return data.data || data;
-  } catch {
-    return [];
   }
-}
-
-export default async function ProvidersPage() {
-  const providers = await getProviders();
 
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950">

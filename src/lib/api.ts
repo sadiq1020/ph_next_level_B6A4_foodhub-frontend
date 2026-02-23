@@ -1,6 +1,9 @@
 import { env } from "@/env";
 
-const BASE_URL = env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+// const BASE_URL = env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+// ✅ Use empty string for production (relative URLs use proxy)
+// Only use BASE_URL for local development
+const BASE_URL = env.NODE_ENV === "development" ? "http://localhost:5000" : ""; // ✅ Empty = use proxy rewrites
 
 // GET request
 const get = async (endpoint: string) => {

@@ -88,20 +88,22 @@ export function CategoryFormDialog({
     },
   });
 
-  // Pre-fill form when editing
+  // ✅ Only reset when category changes or dialog opens, not on every render
   useEffect(() => {
-    if (category) {
-      reset({
-        name: category.name,
-        image: category.image || "",
-      });
-    } else {
-      reset({
-        name: "",
-        image: "",
-      });
+    if (open) {
+      if (category) {
+        reset({
+          name: category.name,
+          image: category.image || "",
+        });
+      } else {
+        reset({
+          name: "",
+          image: "",
+        });
+      }
     }
-  }, [category, reset]);
+  }, [category, open, reset]);
 
   const onSubmit = async (data: CategoryFormData) => {
     const toastId = toast.loading(
@@ -141,7 +143,10 @@ export function CategoryFormDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md">
+      <DialogContent
+        className="max-w-md"
+        onPointerDownOutside={(e) => e.preventDefault()} // ✅ Prevent closing when clicking outside
+      >
         <DialogHeader>
           <DialogTitle>
             {category ? "Edit Category" : "Add New Category"}
@@ -161,6 +166,7 @@ export function CategoryFormDialog({
               <Input
                 id="name"
                 placeholder="e.g., Desserts"
+                autoComplete="off" // ✅ Prevent browser autocomplete
                 {...register("name")}
               />
               {errors.name && <FieldError errors={[errors.name]} />}
@@ -173,6 +179,7 @@ export function CategoryFormDialog({
                 id="image"
                 type="url"
                 placeholder="https://images.unsplash.com/photo-..."
+                autoComplete="off" // ✅ Prevent browser autocomplete
                 {...register("image")}
               />
               <FieldDescription>

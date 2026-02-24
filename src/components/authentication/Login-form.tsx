@@ -67,7 +67,7 @@ export function LoginForm({ ...props }: React.ComponentProps<typeof Card>) {
       // navigating to a protected route. Without this, the proxy's get-session
       // call races against the cookie being set and sometimes sees no session,
       // causing a redirect back to /login (especially for /provider/* routes).
-      await new Promise((resolve) => setTimeout(resolve, 300));
+      // await new Promise((resolve) => setTimeout(resolve, 300));
 
       // Redirect based on role — use replace() so login isn't in history
       const role = (authData?.user as { role?: string })?.role ?? "";

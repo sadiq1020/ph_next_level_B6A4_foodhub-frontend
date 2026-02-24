@@ -92,9 +92,11 @@ export default function OrderDetailPage({
     }
   };
 
-  const handleReviewSuccess = () => {
+  const handleReviewSuccess = (mealId: string) => {
     toast.success("Thank you for your review!");
-    // Optionally refresh order to show review status
+    // ✅ Navigate to the meal page so the customer can see their review immediately.
+    // The meal detail page uses cache: 'no-store' so it will always show fresh data.
+    router.push(`/meals/${mealId}`);
   };
 
   if (isPending || isLoading) {

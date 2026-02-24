@@ -36,7 +36,7 @@ interface ReviewFormProps {
   onOpenChange: (open: boolean) => void;
   mealId: string;
   mealName: string;
-  onSuccess: () => void;
+  onSuccess: (mealId: string) => void; // ✅ Pass mealId back so caller can navigate to meal page
 }
 
 export function ReviewForm({
@@ -77,7 +77,7 @@ export function ReviewForm({
 
       toast.success("Review submitted successfully!", { id: toastId });
       reset();
-      onSuccess();
+      onSuccess(mealId); // ✅ Pass mealId so caller can navigate to the meal page
       onOpenChange(false);
     } catch (error: unknown) {
       const message =

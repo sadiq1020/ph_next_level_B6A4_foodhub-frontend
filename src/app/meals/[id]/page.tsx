@@ -43,7 +43,7 @@ import { notFound } from "next/navigation";
 async function getMeal(id: string): Promise<Meal | null> {
   try {
     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/meals/${id}`, {
-      next: { revalidate: 300 }, // cache 5 minutes
+      cache: "no-store", // ✅ Always fetch fresh — reviews must appear immediately after submission
     });
     if (!res.ok) return null;
     const data = await res.json();

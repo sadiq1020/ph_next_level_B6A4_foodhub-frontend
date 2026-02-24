@@ -13,13 +13,36 @@ const parseError = async (res: Response) => {
 };
 
 // GET request
+// const get = async (endpoint: string) => {
+//   const res = await fetch(`${BASE_URL}${endpoint}`, {
+//     headers: {
+//       "Content-Type": "application/json",
+//     },
+//     credentials: "include",
+//   });
+
+//   if (!res.ok) {
+//     const error = await parseError(res);
+//     throw new Error(error);
+//   }
+
+//   return await res.json();
+// };
+
+// GET request
 const get = async (endpoint: string) => {
-  const res = await fetch(`${BASE_URL}${endpoint}`, {
+  const fullUrl = `${BASE_URL}${endpoint}`;
+  console.log("🌐 API GET:", fullUrl); // ✅ Debug log
+
+  const res = await fetch(fullUrl, {
     headers: {
       "Content-Type": "application/json",
     },
     credentials: "include",
   });
+
+  console.log("📡 Response status:", res.status); // ✅ Debug log
+  console.log("📡 Response URL:", res.url); // ✅ Debug log
 
   if (!res.ok) {
     const error = await parseError(res);

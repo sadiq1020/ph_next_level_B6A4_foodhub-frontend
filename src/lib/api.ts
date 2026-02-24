@@ -15,7 +15,7 @@ const parseError = async (res: Response) => {
 // GET request
 const get = async (endpoint: string) => {
   const fullUrl = `${BASE_URL}${endpoint}`;
-  console.log("🌐 API GET:", fullUrl);
+  // console.log("🌐 API GET:", fullUrl);
 
   const res = await fetch(fullUrl, {
     headers: {
@@ -24,8 +24,8 @@ const get = async (endpoint: string) => {
     credentials: "include",
   });
 
-  console.log("📡 Response status:", res.status);
-  console.log("📡 Response URL:", res.url);
+  // console.log("📡 Response status:", res.status);
+  // console.log("📡 Response URL:", res.url);
 
   if (!res.ok) {
     const error = await parseError(res);

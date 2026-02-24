@@ -94,7 +94,7 @@ export default function OrdersPage() {
         setOrders(fresh);
         if (!cached) setIsLoading(false); // only needed if no cache was present
       } catch (error) {
-        console.error("Failed to fetch orders:", error);
+        // console.error("Failed to fetch orders:", error);
         if (!cached) setIsLoading(false);
       }
     };

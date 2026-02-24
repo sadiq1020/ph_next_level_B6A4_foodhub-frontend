@@ -60,7 +60,7 @@ export default function OrderDetailPage({
         const data = await api.get(`/orders/${id}`);
         setOrder(data.data || data);
       } catch (error) {
-        console.error("Failed to fetch order:", error);
+        // console.error("Failed to fetch order:", error);
         toast.error("Order not found");
         router.push("/orders");
       } finally {

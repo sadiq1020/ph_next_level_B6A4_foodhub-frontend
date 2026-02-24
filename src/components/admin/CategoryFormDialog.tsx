@@ -114,7 +114,7 @@ export function CategoryFormDialog({
         image: data.image || null,
       };
 
-      console.log("📤 Sending payload:", payload);
+      // console.log("📤 Sending payload:", payload);
 
       let savedCategory;
       if (category) {
@@ -122,7 +122,7 @@ export function CategoryFormDialog({
         savedCategory = response.data || response;
       } else {
         const response = await api.post("/categories", payload);
-        console.log("📥 Response:", response);
+        // console.log("📥 Response:", response);
         savedCategory = response.data || response;
       }
 
@@ -136,7 +136,7 @@ export function CategoryFormDialog({
       onSuccess(savedCategory);
       reset();
     } catch (error: unknown) {
-      console.error("❌ Error details:", error);
+      // console.error("❌ Error details:", error);
       const message =
         error instanceof Error ? error.message : "Failed to save category";
       toast.error(message, { id: toastId });

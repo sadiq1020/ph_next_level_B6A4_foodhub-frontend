@@ -15,14 +15,14 @@ export function FeaturedMeals() {
   useEffect(() => {
     const fetchMeals = async () => {
       try {
-        console.log("🔍 Fetching meals from: /meals?isAvailable=true"); // ✅ Debug
+        // console.log("🔍 Fetching meals from: /meals?isAvailable=true");
         const data = await api.get("/meals?isAvailable=true");
-        console.log("✅ Meals data:", data); // ✅ Debug
+        // console.log("✅ Meals data:", data); //
         const allMeals = data.data || data;
         // Limit to 8 meals
         setMeals(Array.isArray(allMeals) ? allMeals.slice(0, 8) : []);
       } catch (error) {
-        console.error("❌ Failed to fetch meals:", error); // ✅ Better error
+        // console.error("❌ Failed to fetch meals:", error); //
         setMeals([]);
       } finally {
         setIsLoading(false);

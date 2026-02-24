@@ -83,7 +83,7 @@ export default function AdminOrdersPage() {
         setOrders(data.data || data);
         setFilteredOrders(data.data || data);
       } catch (error) {
-        console.error("Failed to fetch orders:", error);
+        // console.error("Failed to fetch orders:", error);
         toast.error("Failed to load orders");
       } finally {
         setIsLoading(false);

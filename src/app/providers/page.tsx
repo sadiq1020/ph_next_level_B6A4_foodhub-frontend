@@ -29,7 +29,7 @@ export default function ProvidersPage() {
         const data = await api.get("/provider-profile");
         setProviders(data.data || data);
       } catch (error) {
-        console.error("Failed to fetch providers:", error);
+        // console.error("Failed to fetch providers:", error);
         setProviders([]);
       } finally {
         setIsLoading(false);

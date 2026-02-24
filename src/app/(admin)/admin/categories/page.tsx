@@ -69,8 +69,8 @@ export default function AdminCategoriesPage() {
         const data = await api.get("/categories");
         setCategories(data.data || data);
       } catch (error) {
-        console.error("Failed to fetch categories:", error);
-        toast.error("Failed to load categories");
+        // console.error("Failed to fetch categories:", error);
+        // toast.error("Failed to load categories");
       } finally {
         setIsLoading(false);
       }

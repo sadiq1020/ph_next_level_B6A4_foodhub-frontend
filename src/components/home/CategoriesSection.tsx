@@ -15,7 +15,7 @@ export function CategoriesSection() {
         const data = await api.get("/categories");
         setCategories(data.data || data);
       } catch (error) {
-        console.error("Failed to fetch categories:", error);
+        // console.error("Failed to fetch categories:", error);
         setCategories([]);
       } finally {
         setIsLoading(false);

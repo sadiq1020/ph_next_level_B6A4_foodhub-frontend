@@ -6,11 +6,6 @@ export async function proxy(request: NextRequest) {
   let user: { role?: string } | null = null;
 
   try {
-    // ✅ Call the frontend's OWN /api/auth/get-session endpoint.
-    // next.config.ts rewrites this to the backend, so we avoid calling
-    // the external Render URL directly from the Edge runtime.
-    // This is faster (same Vercel edge network) and bypasses CORS/cold-start
-    // issues that caused intermittent redirects to /login.
     const origin = request.nextUrl.origin;
     const sessionRes = await fetch(`${origin}/api/auth/get-session`, {
       headers: {

@@ -79,7 +79,7 @@ export function MealFilters({
         const data = await api.get("/categories");
         setCategories(data.data || data);
       } catch {
-        console.error("Failed to fetch categories");
+        // console.error("Failed to fetch categories");
       }
     };
     fetchCategories();

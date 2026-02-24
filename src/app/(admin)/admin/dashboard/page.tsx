@@ -9,7 +9,7 @@ import {
   Users,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { QuickActionCard } from "@/components/admin/QuickActionCard";
 import { StatCard } from "@/components/admin/StatCard";
@@ -29,6 +29,8 @@ export default function AdminDashboard() {
   const { data: session, isPending } = useSession();
   const [stats, setStats] = useState<AdminStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  // Track whether we've already fetched so tab-switch doesn't re-fetch
+  const hasFetched = useRef(false);
 
   // Protected route
   useEffect(() => {
@@ -44,12 +46,15 @@ export default function AdminDashboard() {
     }
   }, [session, isPending, router]);
 
-  // Fetch stats
+  // Fetch stats — only once per mount, not every time session object re-renders
   useEffect(() => {
-    const fetchStats = async () => {
-      if (!session?.user) return;
+    if (!session?.user) return;
+    // Already fetched — don't re-fetch on tab switch
+    if (hasFetched.current) return;
 
+    const fetchStats = async () => {
       try {
+        hasFetched.current = true;
         setIsLoading(true);
         const data = await api.get("/admin/stats");
         setStats(data.data || data);
@@ -60,10 +65,8 @@ export default function AdminDashboard() {
       }
     };
 
-    if (session?.user) {
-      fetchStats();
-    }
-  }, [session]);
+    fetchStats();
+  }, [session?.user?.id]); // ✅ Depend on user ID (stable string), not the whole session object
 
   if (isPending) {
     return (

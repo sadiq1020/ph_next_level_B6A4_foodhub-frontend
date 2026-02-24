@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -85,32 +85,23 @@ export function CategoryFormDialog({
     },
   });
 
-  // // ✅ Fixed - only reset on category change
-  // useEffect(() => {
-  //   if (category) {
-  //     reset({
-  //       name: category.name,
-  //       image: category.image || "",
-  //     });
-  //   } else if (open && !category) {
-  //     reset({
-  //       name: "",
-  //       image: "",
-  //     });
-  //   }
-  // }, [category, open, reset]);
-
-  // ✅ Fixed - only reset when category changes, not when dialog opens/closes
+  // Reset form correctly:
+  // - When editing: populate with category data
+  // - When adding new (category=null): reset to empty ONLY when dialog first opens
+  // - While dialog is open and user is typing: never reset (preserves values on tab switch)
+  const prevOpenRef = useRef(false);
   useEffect(() => {
+    const justOpened = open && !prevOpenRef.current;
+    prevOpenRef.current = open;
+
+    if (!justOpened) return; // Already open — don't touch form values
+
     if (category) {
-      reset({
-        name: category.name,
-        image: category.image || "",
-      });
+      reset({ name: category.name, image: category.image || "" });
+    } else {
+      reset({ name: "", image: "" });
     }
-    // If no category and dialog just opened, reset to empty
-    // But don't reset every time `open` changes
-  }, [category, reset]); // ✅ Removed `open` from dependencies
+  }, [open, category, reset]); // ✅ Only resets on the open→true transition
 
   const onSubmit = async (data: CategoryFormData) => {
     const toastId = toast.loading(
@@ -225,3 +216,18 @@ export function CategoryFormDialog({
     </Dialog>
   );
 }
+
+// // ✅ Fixed - only reset on category change
+// useEffect(() => {
+//   if (category) {
+//     reset({
+//       name: category.name,
+//       image: category.image || "",
+//     });
+//   } else if (open && !category) {
+//     reset({
+//       name: "",
+//       image: "",
+//     });
+//   }
+// }, [category, open, reset]);

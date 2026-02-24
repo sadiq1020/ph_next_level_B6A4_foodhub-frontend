@@ -2,7 +2,7 @@
 
 import { Folder, Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
 import { CategoryCard } from "@/components/admin/CategoryCard";
@@ -39,6 +39,8 @@ export default function AdminCategoriesPage() {
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [categoryToDelete, setCategoryToDelete] = useState<string | null>(null);
+  // Track whether we've already fetched so tab-switch doesn't re-fetch
+  const hasFetched = useRef(false);
 
   // Protected route
   useEffect(() => {
@@ -54,12 +56,15 @@ export default function AdminCategoriesPage() {
     }
   }, [session, isPending, router]);
 
-  // Fetch categories
+  // Fetch categories — only once per mount, not every time session object re-renders
   useEffect(() => {
-    const fetchCategories = async () => {
-      if (!session?.user) return;
+    if (!session?.user) return;
+    // Already fetched — don't re-fetch on tab switch
+    if (hasFetched.current) return;
 
+    const fetchCategories = async () => {
       try {
+        hasFetched.current = true;
         setIsLoading(true);
         const data = await api.get("/categories");
         setCategories(data.data || data);
@@ -71,10 +76,8 @@ export default function AdminCategoriesPage() {
       }
     };
 
-    if (session?.user) {
-      fetchCategories();
-    }
-  }, [session]);
+    fetchCategories();
+  }, [session?.user?.id]); // ✅ Depend on user ID (stable string), not the whole session object
 
   // Delete category
   const handleDelete = async () => {
@@ -121,7 +124,9 @@ export default function AdminCategoriesPage() {
     setEditingCategory(null);
   };
 
-  if (isPending || isLoading) {
+  // Only block render while auth is being checked (isPending).
+  // Do NOT include isLoading here — that would unmount the dialog and wipe form state on tab switch.
+  if (isPending) {
     return (
       <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
         <div className="bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800">
@@ -173,7 +178,18 @@ export default function AdminCategoriesPage() {
       </div>
 
       <div className="container mx-auto px-4 py-8">
-        {categories.length === 0 ? (
+        {isLoading ? (
+          // ✅ Inline skeleton — page stays mounted, dialog stays alive
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <Card key={i} className="p-4">
+                <Skeleton className="w-full aspect-video rounded-lg mb-3" />
+                <Skeleton className="h-5 w-3/4 mb-2" />
+                <Skeleton className="h-4 w-1/2" />
+              </Card>
+            ))}
+          </div>
+        ) : categories.length === 0 ? (
           <div className="text-center py-24">
             <div className="w-24 h-24 rounded-full bg-orange-50 dark:bg-orange-950/30 flex items-center justify-center mx-auto mb-6">
               <Folder className="w-12 h-12 text-orange-400" />

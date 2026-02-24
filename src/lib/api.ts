@@ -1,6 +1,6 @@
 // ✅ Improved API client with better error handling
 const BASE_URL =
-  process.env.NODE_ENV === "development" ? "http://localhost:5000" : "";
+  process.env.NODE_ENV === "development" ? "http://localhost:5000" : "/api/v1"; // ✅ Use /api/v1 prefix in production
 
 // Helper to parse error responses
 const parseError = async (res: Response) => {
@@ -13,26 +13,9 @@ const parseError = async (res: Response) => {
 };
 
 // GET request
-// const get = async (endpoint: string) => {
-//   const res = await fetch(`${BASE_URL}${endpoint}`, {
-//     headers: {
-//       "Content-Type": "application/json",
-//     },
-//     credentials: "include",
-//   });
-
-//   if (!res.ok) {
-//     const error = await parseError(res);
-//     throw new Error(error);
-//   }
-
-//   return await res.json();
-// };
-
-// GET request
 const get = async (endpoint: string) => {
   const fullUrl = `${BASE_URL}${endpoint}`;
-  console.log("🌐 API GET:", fullUrl); // ✅ Debug log
+  console.log("🌐 API GET:", fullUrl);
 
   const res = await fetch(fullUrl, {
     headers: {
@@ -41,8 +24,8 @@ const get = async (endpoint: string) => {
     credentials: "include",
   });
 
-  console.log("📡 Response status:", res.status); // ✅ Debug log
-  console.log("📡 Response URL:", res.url); // ✅ Debug log
+  console.log("📡 Response status:", res.status);
+  console.log("📡 Response URL:", res.url);
 
   if (!res.ok) {
     const error = await parseError(res);
@@ -134,3 +117,20 @@ export const api = {
   patch,
   delete: del,
 };
+
+// GET request
+// const get = async (endpoint: string) => {
+//   const res = await fetch(`${BASE_URL}${endpoint}`, {
+//     headers: {
+//       "Content-Type": "application/json",
+//     },
+//     credentials: "include",
+//   });
+
+//   if (!res.ok) {
+//     const error = await parseError(res);
+//     throw new Error(error);
+//   }
+
+//   return await res.json();
+// };

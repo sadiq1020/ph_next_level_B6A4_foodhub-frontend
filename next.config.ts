@@ -23,71 +23,10 @@ const nextConfig: NextConfig = {
         source: "/api/auth/:path*",
         destination: `${BACKEND_URL}/api/auth/:path*`,
       },
-      // ✅ API routes
+      // ✅ ALL backend API calls through /api prefix
       {
-        source: "/api/:path*",
-        destination: `${BACKEND_URL}/api/:path*`,
-      },
-      // ✅ Backend routes - IMPORTANT: Base routes without :path*
-      {
-        source: "/categories",
-        destination: `${BACKEND_URL}/categories`,
-      },
-      {
-        source: "/categories/:path*",
-        destination: `${BACKEND_URL}/categories/:path*`,
-      },
-      {
-        source: "/meals",
-        destination: `${BACKEND_URL}/meals`,
-      },
-      {
-        source: "/meals/:path*",
-        destination: `${BACKEND_URL}/meals/:path*`,
-      },
-      {
-        source: "/provider-profile",
-        destination: `${BACKEND_URL}/provider-profile`,
-      },
-      {
-        source: "/provider-profile/:path*",
-        destination: `${BACKEND_URL}/provider-profile/:path*`,
-      },
-      {
-        source: "/orders",
-        destination: `${BACKEND_URL}/orders`,
-      },
-      {
-        source: "/orders/:path*",
-        destination: `${BACKEND_URL}/orders/:path*`,
-      },
-      {
-        source: "/users",
-        destination: `${BACKEND_URL}/users`,
-      },
-      {
-        source: "/users/:path*",
-        destination: `${BACKEND_URL}/users/:path*`,
-      },
-      {
-        source: "/reviews",
-        destination: `${BACKEND_URL}/reviews`,
-      },
-      {
-        source: "/reviews/:path*",
-        destination: `${BACKEND_URL}/reviews/:path*`,
-      },
-      {
-        source: "/admin/:path*",
-        destination: `${BACKEND_URL}/admin/:path*`,
-      },
-      {
-        source: "/provider",
-        destination: `${BACKEND_URL}/provider`,
-      },
-      {
-        source: "/provider/:path*",
-        destination: `${BACKEND_URL}/provider/:path*`,
+        source: "/api/v1/:path*",
+        destination: `${BACKEND_URL}/:path*`,
       },
     ];
   },

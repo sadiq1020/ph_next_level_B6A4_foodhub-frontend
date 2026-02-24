@@ -63,15 +63,21 @@ export function LoginForm({ ...props }: React.ComponentProps<typeof Card>) {
 
       toast.success("Logged in successfully!", { id: toastId });
 
-      // Redirect based on role
+      // ✅ Wait briefly for the session cookie to fully propagate before
+      // navigating to a protected route. Without this, the proxy's get-session
+      // call races against the cookie being set and sometimes sees no session,
+      // causing a redirect back to /login (especially for /provider/* routes).
+      await new Promise((resolve) => setTimeout(resolve, 300));
+
+      // Redirect based on role — use replace() so login isn't in history
       const role = (authData?.user as { role?: string })?.role ?? "";
 
       if (role === "ADMIN") {
-        router.push("/admin/dashboard");
+        router.replace("/admin/dashboard");
       } else if (role === "PROVIDER") {
-        router.push("/provider/dashboard");
+        router.replace("/provider/dashboard");
       } else {
-        router.push("/"); // Customer goes to home, can not use better-auth callbackURL because of different types of destinations based on role
+        router.replace("/"); // Customer goes to home
       }
     } catch (err) {
       toast.error("Something went wrong, please try again", { id: toastId });

@@ -3,18 +3,33 @@ import { NextRequest, NextResponse } from "next/server";
 export async function proxy(request: NextRequest) {
   const pathName = request.nextUrl.pathname;
 
-  //  Must use process.env here - edge runtime limitation
-  const sessionRes = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/api/auth/get-session`,
-    {
+  let user: { role?: string } | null = null;
+
+  try {
+    // ✅ Call the frontend's OWN /api/auth/get-session endpoint.
+    // next.config.ts rewrites this to the backend, so we avoid calling
+    // the external Render URL directly from the Edge runtime.
+    // This is faster (same Vercel edge network) and bypasses CORS/cold-start
+    // issues that caused intermittent redirects to /login.
+    const origin = request.nextUrl.origin;
+    const sessionRes = await fetch(`${origin}/api/auth/get-session`, {
       headers: {
         cookie: request.headers.get("cookie") || "",
       },
-    },
-  );
+    });
 
-  const session = await sessionRes.json();
-  const user = session?.user;
+    if (sessionRes.ok) {
+      const session = await sessionRes.json();
+      user = session?.user ?? null;
+    } else {
+      // Non-200 — pass through, client-side auth will handle it
+      return NextResponse.next();
+    }
+  } catch {
+    // Network error — pass through rather than wrongly bounce to /login
+    return NextResponse.next();
+  }
+
   const role = (user as { role?: string })?.role ?? "";
   const isAuthenticated = !!user;
 
@@ -41,11 +56,7 @@ export async function proxy(request: NextRequest) {
   return NextResponse.next();
 }
 
-// ✅ Protected routes — /cart intentionally excluded.
-// Cart is client-side only (Zustand + localStorage), has no server data,
-// and including it caused a race condition where the proxy redirected
-// authenticated users to /login due to session cookie timing.
-// The cart page itself handles auth client-side via useSession().
+// /cart intentionally excluded — client-side only, no server data needed
 export const config = {
   matcher: [
     "/orders/:path*",

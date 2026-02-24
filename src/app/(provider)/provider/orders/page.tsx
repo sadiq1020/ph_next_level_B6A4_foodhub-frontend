@@ -2,7 +2,7 @@
 
 import { Package, RefreshCw } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
 import { OrderCard } from "@/components/provider/OrderCard";
@@ -45,6 +45,7 @@ export default function ProviderOrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const hasFetched = useRef(false);
 
   // Protected route
   useEffect(() => {
@@ -84,10 +85,11 @@ export default function ProviderOrdersPage() {
   };
 
   useEffect(() => {
-    if (session?.user) {
-      fetchOrders();
-    }
-  }, [session]);
+    if (!session?.user) return;
+    if (hasFetched.current) return; // ✅ Don't re-fetch on tab switch
+    hasFetched.current = true;
+    fetchOrders();
+  }, [session?.user?.id]); // ✅ Stable string, not the whole session object
 
   // Update order status
   const handleStatusChange = async (orderId: string, newStatus: string) => {

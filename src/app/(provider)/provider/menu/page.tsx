@@ -20,7 +20,7 @@ import type { Meal } from "@/types";
 import { Pencil, Plus, Trash2 } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
 export default function ProviderMenuPage() {
@@ -32,6 +32,7 @@ export default function ProviderMenuPage() {
   const [editingMeal, setEditingMeal] = useState<Meal | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [mealToDelete, setMealToDelete] = useState<string | null>(null);
+  const hasFetched = useRef(false);
 
   //  Protected route - provider only
   useEffect(() => {
@@ -47,12 +48,14 @@ export default function ProviderMenuPage() {
     }
   }, [session, isPending, router]);
 
-  //  Fetch provider's meals
+  //  Fetch provider's meals — only once per mount
   useEffect(() => {
-    const fetchMeals = async () => {
-      if (!session?.user) return;
+    if (!session?.user) return;
+    if (hasFetched.current) return;
 
+    const fetchMeals = async () => {
       try {
+        hasFetched.current = true;
         setIsLoading(true);
         const data = await api.get("/meals/my-meals");
         setMeals(data.data || data);
@@ -64,10 +67,8 @@ export default function ProviderMenuPage() {
       }
     };
 
-    if (session?.user) {
-      fetchMeals();
-    }
-  }, [session]);
+    fetchMeals();
+  }, [session?.user?.id]); // ✅ Stable string, not the whole session object
 
   if (isPending) {
     return (

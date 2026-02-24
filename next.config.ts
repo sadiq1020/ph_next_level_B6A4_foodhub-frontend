@@ -18,7 +18,7 @@ const nextConfig: NextConfig = {
   },
   async rewrites() {
     return [
-      // ✅ Auth routes (most specific first)
+      // ✅ Auth routes
       {
         source: "/api/auth/:path*",
         destination: `${BACKEND_URL}/api/auth/:path*`,
@@ -28,26 +28,50 @@ const nextConfig: NextConfig = {
         source: "/api/:path*",
         destination: `${BACKEND_URL}/api/:path*`,
       },
-      // ✅ Backend routes (categories, meals, etc.)
+      // ✅ Backend routes - IMPORTANT: Base routes without :path*
+      {
+        source: "/categories",
+        destination: `${BACKEND_URL}/categories`,
+      },
       {
         source: "/categories/:path*",
         destination: `${BACKEND_URL}/categories/:path*`,
+      },
+      {
+        source: "/meals",
+        destination: `${BACKEND_URL}/meals`,
       },
       {
         source: "/meals/:path*",
         destination: `${BACKEND_URL}/meals/:path*`,
       },
       {
+        source: "/provider-profile",
+        destination: `${BACKEND_URL}/provider-profile`,
+      },
+      {
         source: "/provider-profile/:path*",
         destination: `${BACKEND_URL}/provider-profile/:path*`,
+      },
+      {
+        source: "/orders",
+        destination: `${BACKEND_URL}/orders`,
       },
       {
         source: "/orders/:path*",
         destination: `${BACKEND_URL}/orders/:path*`,
       },
       {
+        source: "/users",
+        destination: `${BACKEND_URL}/users`,
+      },
+      {
         source: "/users/:path*",
         destination: `${BACKEND_URL}/users/:path*`,
+      },
+      {
+        source: "/reviews",
+        destination: `${BACKEND_URL}/reviews`,
       },
       {
         source: "/reviews/:path*",
@@ -56,6 +80,10 @@ const nextConfig: NextConfig = {
       {
         source: "/admin/:path*",
         destination: `${BACKEND_URL}/admin/:path*`,
+      },
+      {
+        source: "/provider",
+        destination: `${BACKEND_URL}/provider`,
       },
       {
         source: "/provider/:path*",

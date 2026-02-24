@@ -2,39 +2,38 @@ import { CartItem } from "@/types";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
-// ── Types ─────────────────────────────────────────────
-// type CartItem = {
-//   mealId: string;
-//   name: string;
-//   price: number;
-//   quantity: number;
-//   image?: string | null;
-// };
-
 type CartStore = {
   items: CartItem[];
   totalItems: number;
+  userId: string | null; // ✅ Track which user owns this cart
   addToCart: (meal: Omit<CartItem, "quantity">, quantity: number) => void;
   removeFromCart: (mealId: string) => void;
   updateQuantity: (mealId: string, quantity: number) => void;
   clearCart: () => void;
   getCartTotal: () => number;
+  // ✅ Called on login/logout to switch carts between users
+  setUserId: (id: string | null) => void;
 };
 
-// ── Store ─────────────────────────────────────────────
 export const useCart = create<CartStore>()(
-  //  persist middleware handles localStorage automatically
-  // No useEffect needed - Zustand does it for you!
   persist(
     (set, get) => ({
       items: [],
       totalItems: 0,
+      userId: null,
 
-      //  Add to cart - update quantity if already exists
+      // ✅ When user changes (login/logout), clear the in-memory cart
+      // localStorage still holds each user's cart under their own key
+      setUserId: (id) => {
+        const current = get().userId;
+        if (current !== id) {
+          set({ items: [], totalItems: 0, userId: id });
+        }
+      },
+
       addToCart: (meal, quantity) => {
         set((state) => {
           const existing = state.items.find((i) => i.mealId === meal.mealId);
-
           const updatedItems = existing
             ? state.items.map((i) =>
                 i.mealId === meal.mealId
@@ -42,7 +41,6 @@ export const useCart = create<CartStore>()(
                   : i,
               )
             : [...state.items, { ...meal, quantity }];
-
           return {
             items: updatedItems,
             totalItems: updatedItems.reduce((sum, i) => sum + i.quantity, 0),
@@ -50,7 +48,6 @@ export const useCart = create<CartStore>()(
         });
       },
 
-      //  Remove item from cart
       removeFromCart: (mealId) => {
         set((state) => {
           const updatedItems = state.items.filter((i) => i.mealId !== mealId);
@@ -61,7 +58,6 @@ export const useCart = create<CartStore>()(
         });
       },
 
-      //  Update quantity - remove if 0
       updateQuantity: (mealId, quantity) => {
         set((state) => {
           const updatedItems =
@@ -70,7 +66,6 @@ export const useCart = create<CartStore>()(
               : state.items.map((i) =>
                   i.mealId === mealId ? { ...i, quantity } : i,
                 );
-
           return {
             items: updatedItems,
             totalItems: updatedItems.reduce((sum, i) => sum + i.quantity, 0),
@@ -78,10 +73,8 @@ export const useCart = create<CartStore>()(
         });
       },
 
-      //  Clear entire cart
       clearCart: () => set({ items: [], totalItems: 0 }),
 
-      //  Calculate total price
       getCartTotal: () => {
         return get().items.reduce(
           (total, item) => total + item.price * item.quantity,
@@ -91,7 +84,27 @@ export const useCart = create<CartStore>()(
     }),
 
     {
-      name: "foodhub_cart", // localStorage key
+      // ✅ Dynamic key based on userId — each user gets their own localStorage slot
+      name: "foodhub_cart",
+      // Partition the storage so each user ID gets a separate key
+      storage: {
+        getItem: (name) => {
+          const userId = useCart.getState().userId;
+          const key = userId ? `${name}_${userId}` : name;
+          const value = localStorage.getItem(key);
+          return value ? JSON.parse(value) : null;
+        },
+        setItem: (name, value) => {
+          const userId = useCart.getState().userId;
+          const key = userId ? `${name}_${userId}` : name;
+          localStorage.setItem(key, JSON.stringify(value));
+        },
+        removeItem: (name) => {
+          const userId = useCart.getState().userId;
+          const key = userId ? `${name}_${userId}` : name;
+          localStorage.removeItem(key);
+        },
+      },
     },
   ),
 );

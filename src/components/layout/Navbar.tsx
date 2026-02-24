@@ -4,6 +4,7 @@ import { Menu, ShoppingCart } from "lucide-react"; // ✅ Add ShoppingCart
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -43,16 +44,23 @@ const navLinks = [
 const Navbar = ({ className }: { className?: string }) => {
   const { data: session, isPending } = useSession();
   const router = useRouter();
-  const { items } = useCart(); // ✅ Get cart items
+  const { items, setUserId, clearCart } = useCart();
 
   const user = session?.user;
   const role = (user as { role?: string })?.role ?? "";
 
-  // ✅ Calculate total items in cart
-  const cartItemsCount = items.reduce(
-    (total, item) => total + item.quantity,
-    0,
-  );
+  // ✅ Sync cart userId whenever session changes (login/logout/user switch)
+  useEffect(() => {
+    if (!isPending) {
+      setUserId(user?.id ?? null);
+    }
+  }, [user?.id, isPending, setUserId]);
+
+  // ✅ Calculate total items in cart — only show for customers
+  const cartItemsCount =
+    role === "CUSTOMER"
+      ? items.reduce((total, item) => total + item.quantity, 0)
+      : 0;
 
   // Get user initials for avatar
   const getInitials = (name: string) => {
@@ -64,8 +72,10 @@ const Navbar = ({ className }: { className?: string }) => {
       .slice(0, 2);
   };
 
-  // Handle logout
+  // Handle logout — clear cart and redirect
   const handleLogout = async () => {
+    clearCart();
+    setUserId(null);
     await authClient.signOut();
     router.push("/login");
   };
@@ -207,17 +217,24 @@ const Navbar = ({ className }: { className?: string }) => {
 
           {/* Right: Cart + Mode Toggle + Auth */}
           <div className="flex items-center gap-2">
-            {/* ✅ Cart Button */}
-            <Button asChild variant="outline" size="icon" className="relative">
-              <Link href="/cart">
-                <ShoppingCart className="w-4 h-4" />
-                {cartItemsCount > 0 && (
-                  <span className="absolute -top-1 -right-1 w-5 h-5 bg-orange-500 text-white text-xs rounded-full flex items-center justify-center font-semibold">
-                    {cartItemsCount}
-                  </span>
-                )}
-              </Link>
-            </Button>
+            {/* Cart Button — only for customers */}
+            {role === "CUSTOMER" && (
+              <Button
+                asChild
+                variant="outline"
+                size="icon"
+                className="relative"
+              >
+                <Link href="/cart">
+                  <ShoppingCart className="w-4 h-4" />
+                  {cartItemsCount > 0 && (
+                    <span className="absolute -top-1 -right-1 w-5 h-5 bg-orange-500 text-white text-xs rounded-full flex items-center justify-center font-semibold">
+                      {cartItemsCount}
+                    </span>
+                  )}
+                </Link>
+              </Button>
+            )}
 
             <ModeToggle />
             {renderAuthSection()}
@@ -243,22 +260,24 @@ const Navbar = ({ className }: { className?: string }) => {
 
             {/* Right side: Cart + Mode toggle + hamburger */}
             <div className="flex items-center gap-2">
-              {/* ✅ Mobile Cart Button */}
-              <Button
-                asChild
-                variant="outline"
-                size="icon"
-                className="relative"
-              >
-                <Link href="/cart">
-                  <ShoppingCart className="w-4 h-4" />
-                  {cartItemsCount > 0 && (
-                    <span className="absolute -top-1 -right-1 w-5 h-5 bg-orange-500 text-white text-xs rounded-full flex items-center justify-center font-semibold">
-                      {cartItemsCount}
-                    </span>
-                  )}
-                </Link>
-              </Button>
+              {/* Mobile Cart Button — only for customers */}
+              {role === "CUSTOMER" && (
+                <Button
+                  asChild
+                  variant="outline"
+                  size="icon"
+                  className="relative"
+                >
+                  <Link href="/cart">
+                    <ShoppingCart className="w-4 h-4" />
+                    {cartItemsCount > 0 && (
+                      <span className="absolute -top-1 -right-1 w-5 h-5 bg-orange-500 text-white text-xs rounded-full flex items-center justify-center font-semibent">
+                        {cartItemsCount}
+                      </span>
+                    )}
+                  </Link>
+                </Button>
+              )}
 
               <ModeToggle />
               <Sheet>

@@ -41,13 +41,16 @@ export async function proxy(request: NextRequest) {
   return NextResponse.next();
 }
 
-//  Only runs on these protected routes
+// ✅ Protected routes — /cart intentionally excluded.
+// Cart is client-side only (Zustand + localStorage), has no server data,
+// and including it caused a race condition where the proxy redirected
+// authenticated users to /login due to session cookie timing.
+// The cart page itself handles auth client-side via useSession().
 export const config = {
   matcher: [
     "/orders/:path*",
     "/checkout/:path*",
     "/profile/:path*",
-    "/cart/:path*",
     "/provider/:path*",
     "/admin/:path*",
   ],

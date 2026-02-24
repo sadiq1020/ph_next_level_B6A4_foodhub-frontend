@@ -2,7 +2,7 @@
 
 import { Search, Users as UsersIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
 import { UserCard } from "@/components/admin/UserCard";
@@ -34,6 +34,7 @@ export default function AdminUsersPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [roleFilter, setRoleFilter] = useState<RoleFilter>("ALL");
+  const hasFetched = useRef(false);
 
   // Protected route
   useEffect(() => {
@@ -49,12 +50,14 @@ export default function AdminUsersPage() {
     }
   }, [session, isPending, router]);
 
-  // Fetch users
+  // Fetch users — only once per mount
   useEffect(() => {
-    const fetchUsers = async () => {
-      if (!session?.user) return;
+    if (!session?.user) return;
+    if (hasFetched.current) return;
 
+    const fetchUsers = async () => {
       try {
+        hasFetched.current = true;
         setIsLoading(true);
         const data = await api.get("/users");
         setUsers(data.data || data);
@@ -67,10 +70,8 @@ export default function AdminUsersPage() {
       }
     };
 
-    if (session?.user) {
-      fetchUsers();
-    }
-  }, [session]);
+    fetchUsers();
+  }, [session?.user?.id]); // ✅ Stable string, not the whole session object
 
   // Filter and search
   useEffect(() => {
@@ -124,7 +125,7 @@ export default function AdminUsersPage() {
     }
   };
 
-  if (isPending || isLoading) {
+  if (isPending) {
     return (
       <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
         <div className="bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800">
@@ -207,7 +208,15 @@ export default function AdminUsersPage() {
         </div>
 
         {/* Users Grid */}
-        {filteredUsers.length === 0 ? (
+        {isLoading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <Card key={i} className="p-6">
+                <Skeleton className="h-20 w-full" />
+              </Card>
+            ))}
+          </div>
+        ) : filteredUsers.length === 0 ? (
           <div className="text-center py-24">
             <div className="w-24 h-24 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center mx-auto mb-6">
               <UsersIcon className="w-12 h-12 text-zinc-400" />

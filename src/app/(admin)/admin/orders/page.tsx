@@ -2,7 +2,7 @@
 
 import { Package, Search } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
 import { AdminOrderCard } from "@/components/admin/AdminOrderCard";
@@ -54,6 +54,7 @@ export default function AdminOrdersPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("ALL");
+  const hasFetched = useRef(false);
 
   // Protected route
   useEffect(() => {
@@ -69,12 +70,14 @@ export default function AdminOrdersPage() {
     }
   }, [session, isPending, router]);
 
-  // Fetch orders
+  // Fetch orders — only once per mount, not every time session object re-renders
   useEffect(() => {
-    const fetchOrders = async () => {
-      if (!session?.user) return;
+    if (!session?.user) return;
+    if (hasFetched.current) return;
 
+    const fetchOrders = async () => {
       try {
+        hasFetched.current = true;
         setIsLoading(true);
         const data = await api.get("/orders/admin/all");
         setOrders(data.data || data);
@@ -87,10 +90,8 @@ export default function AdminOrdersPage() {
       }
     };
 
-    if (session?.user) {
-      fetchOrders();
-    }
-  }, [session]);
+    fetchOrders();
+  }, [session?.user?.id]); // ✅ Stable string, not the whole session object
 
   // Filter and search
   useEffect(() => {
@@ -112,7 +113,7 @@ export default function AdminOrdersPage() {
     setFilteredOrders(result);
   }, [orders, statusFilter, searchQuery]);
 
-  if (isPending || isLoading) {
+  if (isPending) {
     return (
       <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
         <div className="bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800">
@@ -204,7 +205,15 @@ export default function AdminOrdersPage() {
         </div>
 
         {/* Orders List */}
-        {filteredOrders.length === 0 ? (
+        {isLoading ? (
+          <div className="space-y-4">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <Card key={i} className="p-6">
+                <Skeleton className="h-24 w-full" />
+              </Card>
+            ))}
+          </div>
+        ) : filteredOrders.length === 0 ? (
           <div className="text-center py-24">
             <div className="w-24 h-24 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center mx-auto mb-6">
               <Package className="w-12 h-12 text-zinc-400" />

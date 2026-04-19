@@ -59,7 +59,7 @@ export default function AdminDashboard() {
         const data = await api.get("/admin/stats");
         setStats(data.data || data);
       } catch (error) {
-        console.error("Failed to fetch stats:", error);
+        // console.error("Failed to fetch stats:", error);
       } finally {
         setIsLoading(false);
       }

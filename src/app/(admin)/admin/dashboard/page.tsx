@@ -33,13 +33,6 @@ export default function AdminDashboard() {
   const [isLoading, setIsLoading] = useState(true);
   const hasFetched = useRef(false);
 
-  useEffect(() => {
-    if (!isPending && !session?.user) router.push("/login");
-    if (!isPending && session?.user) {
-      const userRole = (session.user as { role?: string }).role;
-      if (userRole !== "ADMIN") router.push("/");
-    }
-  }, [session, isPending, router]);
 
   useEffect(() => {
     if (!session?.user) return;

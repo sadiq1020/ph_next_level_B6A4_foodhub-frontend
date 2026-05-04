@@ -40,12 +40,6 @@ export default function CheckoutPage() {
     },
   });
 
-  // Protected route
-  useEffect(() => {
-    if (!isPending && !session?.user) {
-      router.push("/login");
-    }
-  }, [session, isPending, router]);
 
   if (isPending) {
     return (

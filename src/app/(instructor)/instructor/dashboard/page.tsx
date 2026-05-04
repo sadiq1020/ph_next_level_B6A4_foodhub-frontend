@@ -96,14 +96,6 @@ export default function InstructorDashboard() {
   const [profile, setProfile] = useState<InstructorProfile | null>(null);
   const [isLoadingProfile, setIsLoadingProfile] = useState(true);
 
-  // Protected route — INSTRUCTOR only
-  useEffect(() => {
-    if (!isPending && !session?.user) router.push("/login");
-    if (!isPending && session?.user) {
-      const role = (session.user as { role?: string }).role;
-      if (role !== "INSTRUCTOR") router.push("/");
-    }
-  }, [session, isPending, router]);
 
   // Fetch instructor profile to get live approval status
   // We always fetch fresh (no cache) so the status reflects

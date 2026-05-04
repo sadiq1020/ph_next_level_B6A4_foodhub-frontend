@@ -157,10 +157,6 @@ export default function ProfilePage() {
     defaultValues: { name: "", phone: "", email: "" },
   });
 
-  // Redirect if not logged in
-  useEffect(() => {
-    if (!isPending && !session?.user) router.push("/login");
-  }, [session, isPending, router]);
 
   // Pre-fill form from session
   useEffect(() => {

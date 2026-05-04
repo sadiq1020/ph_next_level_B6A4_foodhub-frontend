@@ -17,12 +17,6 @@ export default function CartPage() {
   const { items, updateQuantity, removeFromCart, getCartTotal, clearCart } =
     useCart();
 
-  //  Protected route - redirect if not authenticated
-  useEffect(() => {
-    if (!isPending && !session?.user) {
-      router.push("/login");
-    }
-  }, [session, isPending, router]);
 
   // Show nothing while checking session
   if (isPending) {

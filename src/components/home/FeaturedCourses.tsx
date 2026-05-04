@@ -1,35 +1,31 @@
 "use client";
 
+import { CourseCard } from "@/components/courses/CourseCard";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { api } from "@/lib/api";
-import { Meal } from "@/types";
+import { Course } from "@/types";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { MealCard } from "../meals/MealCard";
 
-export function FeaturedMeals() {
-  const [meals, setMeals] = useState<Meal[]>([]);
+export function FeaturedCourses() {
+  const [courses, setCourses] = useState<Course[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const fetchMeals = async () => {
+    const fetchCourses = async () => {
       try {
-        // console.log("🔍 Fetching meals from: /meals?isAvailable=true");
-        const data = await api.get("/meals?isAvailable=true");
-        // console.log("✅ Meals data:", data); //
-        const allMeals = data.data || data;
-        // Limit to 8 meals
-        setMeals(Array.isArray(allMeals) ? allMeals.slice(0, 8) : []);
-      } catch (error) {
-        // console.error("❌ Failed to fetch meals:", error); //
-        setMeals([]);
+        const data = await api.get("/courses?isAvailable=true");
+        const all = data.data || data;
+        setCourses(Array.isArray(all) ? all.slice(0, 8) : []);
+      } catch {
+        setCourses([]);
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchMeals();
+    fetchCourses();
   }, []);
 
   if (isLoading) {
@@ -43,7 +39,6 @@ export function FeaturedMeals() {
             </div>
             <Skeleton className="h-10 w-40 rounded-full" />
           </div>
-
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {Array.from({ length: 8 }).map((_, i) => (
               <div key={i} className="rounded-xl overflow-hidden border">
@@ -72,10 +67,10 @@ export function FeaturedMeals() {
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-10">
           <div>
             <h2 className="text-3xl md:text-4xl font-bold text-zinc-900 dark:text-zinc-50 mb-2">
-              Featured Meals
+              Featured Courses
             </h2>
             <p className="text-zinc-500 dark:text-zinc-400">
-              Handpicked delicious meals from our top providers
+              Handpicked courses from our top culinary instructors
             </p>
           </div>
           <Button
@@ -83,32 +78,31 @@ export function FeaturedMeals() {
             variant="outline"
             className="rounded-full border-zinc-300 dark:border-zinc-700 shrink-0"
           >
-            <Link href="/meals">View All Meals →</Link>
+            <Link href="/courses">View All Courses →</Link>
           </Button>
         </div>
 
-        {/* Meals Grid */}
-        {meals.length === 0 ? (
+        {/* Courses Grid */}
+        {courses.length === 0 ? (
           <div className="text-center py-12 text-zinc-400">
-            <p className="text-4xl mb-3">🍽️</p>
-            <p>No meals available yet.</p>
+            <p className="text-4xl mb-3">🎬</p>
+            <p>No courses available yet.</p>
           </div>
         ) : (
           <>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {meals.map((meal) => (
-                <MealCard key={meal.id} meal={meal} />
+              {courses.map((course) => (
+                <CourseCard key={course.id} course={course} />
               ))}
             </div>
 
-            {/* Bottom CTA */}
             <div className="text-center mt-10">
               <Button
                 asChild
                 size="lg"
                 className="rounded-full px-8 bg-gradient-to-r from-orange-500 to-rose-500 hover:from-orange-600 hover:to-rose-600 border-0 text-white"
               >
-                <Link href="/meals">Browse All Meals →</Link>
+                <Link href="/courses">Browse All Courses →</Link>
               </Button>
             </div>
           </>

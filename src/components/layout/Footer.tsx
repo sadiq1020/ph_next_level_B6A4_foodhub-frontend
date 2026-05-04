@@ -5,17 +5,17 @@ const Footer = () => {
     <Footer2
       logo={{
         url: "/",
-        src: "/images/logo.png", // ✅ Path to your logo in public folder
-        alt: "FoodHub logo",
-        title: "FoodHub",
+        src: "/images/logo.png",
+        alt: "KitchenClass logo",
+        title: "KitchenClass",
       }}
-      tagline="Delicious food, delivered to your door."
+      tagline="Learn to cook from professional chefs with expert-led courses."
       menuItems={[
         {
-          title: "About FoodHub",
+          title: "About KitchenClass",
           links: [
             {
-              text: "FoodHub connects hungry customers with the best local food providers in your area. Order your favorite meals and get them delivered fresh and fast.",
+              text: "KitchenClass connects aspiring cooks with professional chefs. Master culinary arts from the comfort of your home with our expert-led video courses.",
               url: "#",
             },
           ],
@@ -24,8 +24,8 @@ const Footer = () => {
           title: "Quick Links",
           links: [
             { text: "Home", url: "/" },
-            { text: "Browse Meals", url: "/meals" },
-            { text: "Providers", url: "/providers" },
+            { text: "Browse Courses", url: "/courses" },
+            { text: "Instructors", url: "/instructors" },
             { text: "Contact", url: "#contact" },
           ],
         },
@@ -33,15 +33,15 @@ const Footer = () => {
           title: "Contact Us",
           links: [
             {
-              text: "📧 support@foodhub.com",
-              url: "mailto:support@foodhub.com",
+              text: "📧 support@kitchenclass.com",
+              url: "mailto:support@kitchenclass.com",
             },
             { text: "📞 +880 1700 000000", url: "tel:+8801700000000" },
             { text: "📍 Dhaka, Bangladesh", url: "#" },
           ],
         },
       ]}
-      copyright={`© ${new Date().getFullYear()} FoodHub. All rights reserved.`}
+      copyright={`© ${new Date().getFullYear()} KitchenClass. All rights reserved.`}
       bottomLinks={[]}
     />
   );

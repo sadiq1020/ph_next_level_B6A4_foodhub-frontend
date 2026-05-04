@@ -17,8 +17,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Food hub",
-  description: "Best Platform to find your next meal",
+  title: "KitchenClass",
+  description: "Learn to cook from professional chefs with expert-led courses",
 };
 
 export default function RootLayout({

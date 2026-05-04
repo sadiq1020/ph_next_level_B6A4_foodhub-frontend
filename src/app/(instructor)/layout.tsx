@@ -1,4 +1,4 @@
-export default function ProviderLayout({
+export default function InstructorLayout({
   children,
 }: {
   children: React.ReactNode;

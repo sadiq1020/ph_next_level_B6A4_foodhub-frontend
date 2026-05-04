@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation";
 import { use, useEffect, useState } from "react";
 import { toast } from "sonner";
 
-import { OrderDeliveryInfo } from "@/components/orders/OrderDeliveryInfo";
 import { OrderItemsList } from "@/components/orders/OrderItemsList";
 import { OrderStatusBadge } from "@/components/orders/OrderStatusBadge";
 import { OrderSummaryCard } from "@/components/orders/OrderSummaryCard";
@@ -40,7 +39,7 @@ export default function OrderDetailPage({
   const [isLoading, setIsLoading] = useState(true);
   const [isCancelling, setIsCancelling] = useState(false);
   const [reviewDialogOpen, setReviewDialogOpen] = useState(false);
-  const [selectedMeal, setSelectedMeal] = useState<{
+  const [selectedCourse, setSelectedCourse] = useState<{
     id: string;
     name: string;
   } | null>(null);
@@ -59,9 +58,8 @@ export default function OrderDetailPage({
         setIsLoading(true);
         const data = await api.get(`/orders/${id}`);
         setOrder(data.data || data);
-      } catch (error) {
-        // console.error("Failed to fetch order:", error);
-        toast.error("Order not found");
+      } catch {
+        toast.error("Enrollment not found");
         router.push("/orders");
       } finally {
         setIsLoading(false);
@@ -76,27 +74,25 @@ export default function OrderDetailPage({
   const handleCancelOrder = async () => {
     if (!order) return;
 
-    const toastId = toast.loading("Cancelling order...");
+    const toastId = toast.loading("Cancelling enrollment...");
     setIsCancelling(true);
 
     try {
       await api.put(`/orders/${order.id}/cancel`, {});
-      toast.success("Order cancelled successfully", { id: toastId });
+      toast.success("Enrollment cancelled successfully", { id: toastId });
       setOrder({ ...order, status: "CANCELLED" });
     } catch (error: unknown) {
       const message =
-        error instanceof Error ? error.message : "Failed to cancel order";
+        error instanceof Error ? error.message : "Failed to cancel enrollment";
       toast.error(message, { id: toastId });
     } finally {
       setIsCancelling(false);
     }
   };
 
-  const handleReviewSuccess = (mealId: string) => {
+  const handleReviewSuccess = (courseId: string) => {
     toast.success("Thank you for your review!");
-    // ✅ Navigate to the meal page so the customer can see their review immediately.
-    // The meal detail page uses cache: 'no-store' so it will always show fresh data.
-    router.push(`/meals/${mealId}`);
+    router.push(`/courses/${courseId}`);
   };
 
   if (isPending || isLoading) {
@@ -119,8 +115,8 @@ export default function OrderDetailPage({
     });
   };
 
-  const canCancel = order.status === "PLACED";
-  const canReview = order.status === "DELIVERED";
+  const canCancel = order.status === "PENDING";
+  const canReview = order.status === "ACTIVE" || order.status === "COMPLETED";
 
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
@@ -134,14 +130,14 @@ export default function OrderDetailPage({
           >
             <Link href="/orders">
               <ArrowLeft className="w-4 h-4" />
-              Back to Orders
+              Back to My Enrollments
             </Link>
           </Button>
 
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
               <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">
-                Order #{order.orderNumber}
+                Enrollment #{order.orderNumber}
               </h1>
               <p className="text-zinc-500 dark:text-zinc-400 text-sm mt-0.5">
                 {formatDate(order.createdAt)}
@@ -160,27 +156,27 @@ export default function OrderDetailPage({
                       disabled={isCancelling}
                       className="rounded-full"
                     >
-                      Cancel Order
+                      Cancel Enrollment
                     </Button>
                   </AlertDialogTrigger>
                   <AlertDialogContent>
                     <AlertDialogHeader>
                       <AlertDialogTitle className="flex items-center gap-2">
                         <AlertCircle className="w-5 h-5 text-red-500" />
-                        Cancel Order?
+                        Cancel Enrollment?
                       </AlertDialogTitle>
                       <AlertDialogDescription>
-                        Are you sure you want to cancel this order? This action
-                        cannot be undone.
+                        Are you sure you want to cancel this enrollment? This
+                        action cannot be undone.
                       </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                      <AlertDialogCancel>Keep Order</AlertDialogCancel>
+                      <AlertDialogCancel>Keep Enrollment</AlertDialogCancel>
                       <AlertDialogAction
                         onClick={handleCancelOrder}
                         className="bg-red-500 hover:bg-red-600"
                       >
-                        Yes, Cancel Order
+                        Yes, Cancel
                       </AlertDialogAction>
                     </AlertDialogFooter>
                   </AlertDialogContent>
@@ -199,36 +195,42 @@ export default function OrderDetailPage({
               <OrderItemsList
                 items={order.items}
                 canReview={canReview}
-                onReviewClick={(mealId: string, mealName: string) => {
-                  setSelectedMeal({ id: mealId, name: mealName });
+                onReviewClick={(courseId: string, courseName: string) => {
+                  setSelectedCourse({ id: courseId, name: courseName });
                   setReviewDialogOpen(true);
                 }}
               />
             )}
           </div>
 
+          {/* Sidebar — removed OrderDeliveryInfo, kept summary with accessUntil */}
           <div className="space-y-6">
-            <OrderDeliveryInfo
-              deliveryAddress={order.deliveryAddress}
-              phone={order.phone}
-              notes={order.notes}
-            />
+            {order.notes && (
+              <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-6">
+                <h3 className="font-semibold text-zinc-900 dark:text-zinc-50 mb-2">
+                  Notes
+                </h3>
+                <p className="text-sm text-zinc-500 dark:text-zinc-400">
+                  {order.notes}
+                </p>
+              </div>
+            )}
             <OrderSummaryCard
               subtotal={order.subtotal}
-              deliveryFee={order.deliveryFee}
               total={order.total}
+              accessUntil={order.accessUntil}
             />
           </div>
         </div>
       </div>
 
       {/* Review Dialog */}
-      {selectedMeal && (
+      {selectedCourse && (
         <ReviewForm
           open={reviewDialogOpen}
           onOpenChange={setReviewDialogOpen}
-          mealId={selectedMeal.id}
-          mealName={selectedMeal.name}
+          courseId={selectedCourse.id}
+          courseName={selectedCourse.name}
           onSuccess={handleReviewSuccess}
         />
       )}

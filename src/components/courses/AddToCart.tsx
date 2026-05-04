@@ -2,13 +2,13 @@
 
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/context/CartContext";
-import { useSession } from "@/lib/auth-client"; // ← Add
-import { Minus, Plus, ShoppingCart } from "lucide-react";
-import { useRouter } from "next/navigation"; // ← Add
+import { useSession } from "@/lib/auth-client";
+import { GraduationCap, Minus, Plus } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 
-type AddToCartMeal = {
+type AddToCartCourse = {
   id: string;
   name: string;
   price: number;
@@ -16,19 +16,18 @@ type AddToCartMeal = {
   image?: string | null;
 };
 
-export function AddToCart({ meal }: { meal: AddToCartMeal }) {
+export function AddToCart({ course }: { course: AddToCartCourse }) {
   const [quantity, setQuantity] = useState(1);
   const { addToCart } = useCart();
-  const { data: session } = useSession(); // ← Add
-  const router = useRouter(); // ← Add
+  const { data: session } = useSession();
+  const router = useRouter();
 
   const decrease = () => setQuantity((q) => Math.max(1, q - 1));
   const increase = () => setQuantity((q) => Math.min(99, q + 1));
 
   const handleAddToCart = () => {
-    //  Check if logged in
     if (!session?.user) {
-      toast.error("Please login to add items to cart", {
+      toast.error("Please login to enroll in courses", {
         action: {
           label: "Login",
           onClick: () => router.push("/login"),
@@ -37,22 +36,30 @@ export function AddToCart({ meal }: { meal: AddToCartMeal }) {
       return;
     }
 
+    const role = (session.user as { role?: string })?.role;
+    if (role && role !== "CUSTOMER") {
+      toast.error("Enrollment Restricted", {
+        description: "Please login as a customer to enroll in courses.",
+      });
+      return;
+    }
+
     addToCart(
       {
-        mealId: meal.id,
-        name: meal.name,
-        price: meal.price,
-        image: meal.image,
+        courseId: course.id,   // was: mealId
+        name: course.name,
+        price: course.price,
+        image: course.image,
       },
       quantity,
     );
 
-    toast.success(`${meal.name} added to cart!`, {
-      description: `${quantity} × ৳${meal.price} = ৳${quantity * meal.price}`,
+    toast.success(`${course.name} added to cart!`, {
+      description: `৳${quantity * course.price} total`,
     });
   };
 
-  if (meal.isAvailable === false) {
+  if (course.isAvailable === false) {
     return (
       <div className="flex items-center justify-center h-14 rounded-2xl bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700">
         <span className="text-zinc-500 font-medium">Currently Unavailable</span>
@@ -86,11 +93,10 @@ export function AddToCart({ meal }: { meal: AddToCartMeal }) {
         onClick={handleAddToCart}
         className="flex-1 rounded-full bg-gradient-to-r from-orange-500 to-rose-500 hover:from-orange-600 hover:to-rose-600 border-0 text-white h-11 gap-2"
       >
-        <ShoppingCart className="w-4 h-4" />
-        {/*  Show different text based on login status */}
+        <GraduationCap className="w-4 h-4" />
         {session?.user
-          ? `Add to Cart · ৳${quantity * meal.price}`
-          : "Login to Add to Cart"}
+          ? `Enroll Now · ৳${quantity * course.price}`
+          : "Login to Enroll"}
       </Button>
     </div>
   );

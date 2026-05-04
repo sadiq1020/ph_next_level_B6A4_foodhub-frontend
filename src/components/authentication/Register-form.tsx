@@ -45,7 +45,7 @@ const formSchema = z
       .or(z.literal("")),
     password: z.string().min(8, "Minimum length is 8"),
     confirmPassword: z.string().min(1, "This field is required"),
-    role: z.enum(["CUSTOMER", "PROVIDER"], {
+    role: z.enum(["CUSTOMER", "INSTRUCTOR"], {
       error: "Please select a role",
     }),
     businessName: z.string().optional(),
@@ -63,7 +63,7 @@ const formSchema = z
   .refine(
     // businessName required if PROVIDER
     (data) => {
-      if (data.role === "PROVIDER") {
+      if (data.role === "INSTRUCTOR") {
         return !!data.businessName && data.businessName.length >= 1;
       }
       return true;
@@ -76,7 +76,7 @@ const formSchema = z
   .refine(
     // address required if PROVIDER
     (data) => {
-      if (data.role === "PROVIDER") {
+      if (data.role === "INSTRUCTOR") {
         return !!data.address && data.address.length >= 1;
       }
       return true;
@@ -134,9 +134,9 @@ export function RegisterForm({ ...props }: React.ComponentProps<typeof Card>) {
         return;
       }
 
-      // Step 2: If Provider, create provider profile
-      if (data.role === "PROVIDER" && authData?.user) {
-        await api.post("/provider/profile", {
+      // Step 2: If Instructor, create profile
+      if (data.role === "INSTRUCTOR" && authData?.user) {
+        await api.post("/instructor/profile", {
           businessName: data.businessName,
           address: data.address,
           description: data.description || "",
@@ -250,35 +250,35 @@ export function RegisterForm({ ...props }: React.ComponentProps<typeof Card>) {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="CUSTOMER">
-                        🛒 Customer - Order food
+                        🛒 Customer - Take courses
                       </SelectItem>
-                      <SelectItem value="PROVIDER">
-                        🍽️ Provider - Sell food
+                      <SelectItem value="INSTRUCTOR">
+                        🎓 Instructor - Share knowledge
                       </SelectItem>
                     </SelectContent>
                   </Select>
                 )}
               />
               <FieldDescription>
-                Select whether you want to order or sell food.
+                Select whether you want to learn or teach.
               </FieldDescription>
               {errors.role && <FieldError errors={[errors.role]} />}
             </Field>
 
-            {/* Provider Fields - Only shown when PROVIDER selected */}
-            {selectedRole === "PROVIDER" && (
+            {/* Instructor Fields - Only shown when INSTRUCTOR selected */}
+            {selectedRole === "INSTRUCTOR" && (
               <FieldGroup className="border rounded-lg p-4 bg-muted/30">
                 <Field>
-                  <FieldLabel>Provider Information</FieldLabel>
+                  <FieldLabel>Instructor Information</FieldLabel>
                   <FieldDescription>
-                    Fill in your restaurant or business details.
+                    Fill in your school or studio details.
                   </FieldDescription>
                 </Field>
 
                 {/* Business Name */}
                 <Field data-invalid={!!errors.businessName}>
                   <FieldLabel htmlFor="businessName">
-                    Business Name *
+                    School/Studio Name *
                   </FieldLabel>
                   <Input
                     id="businessName"
@@ -293,7 +293,7 @@ export function RegisterForm({ ...props }: React.ComponentProps<typeof Card>) {
 
                 {/* Address */}
                 <Field data-invalid={!!errors.address}>
-                  <FieldLabel htmlFor="address">Business Address *</FieldLabel>
+                  <FieldLabel htmlFor="address">School Address *</FieldLabel>
                   <Input
                     id="address"
                     type="text"
@@ -311,11 +311,11 @@ export function RegisterForm({ ...props }: React.ComponentProps<typeof Card>) {
                   <Input
                     id="description"
                     type="text"
-                    placeholder="Tell customers about your restaurant"
+                    placeholder="Tell students about your expertise"
                     {...register("description")}
                   />
                   <FieldDescription>
-                    A short description of your food business.
+                    A short description of your teaching background.
                   </FieldDescription>
                 </Field>
               </FieldGroup>

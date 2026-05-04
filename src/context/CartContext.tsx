@@ -5,13 +5,12 @@ import { persist } from "zustand/middleware";
 type CartStore = {
   items: CartItem[];
   totalItems: number;
-  userId: string | null; // ✅ Track which user owns this cart
-  addToCart: (meal: Omit<CartItem, "quantity">, quantity: number) => void;
-  removeFromCart: (mealId: string) => void;
-  updateQuantity: (mealId: string, quantity: number) => void;
+  userId: string | null;
+  addToCart: (course: Omit<CartItem, "quantity">, quantity: number) => void;
+  removeFromCart: (courseId: string) => void;
+  updateQuantity: (courseId: string, quantity: number) => void;
   clearCart: () => void;
   getCartTotal: () => number;
-  // ✅ Called on login/logout to switch carts between users
   setUserId: (id: string | null) => void;
 };
 
@@ -22,8 +21,6 @@ export const useCart = create<CartStore>()(
       totalItems: 0,
       userId: null,
 
-      // ✅ When user changes (login/logout), clear the in-memory cart
-      // localStorage still holds each user's cart under their own key
       setUserId: (id) => {
         const current = get().userId;
         if (current !== id) {
@@ -31,16 +28,16 @@ export const useCart = create<CartStore>()(
         }
       },
 
-      addToCart: (meal, quantity) => {
+      addToCart: (course, quantity) => {
         set((state) => {
-          const existing = state.items.find((i) => i.mealId === meal.mealId);
+          const existing = state.items.find((i) => i.courseId === course.courseId);
           const updatedItems = existing
             ? state.items.map((i) =>
-                i.mealId === meal.mealId
+                i.courseId === course.courseId
                   ? { ...i, quantity: i.quantity + quantity }
                   : i,
               )
-            : [...state.items, { ...meal, quantity }];
+            : [...state.items, { ...course, quantity }];
           return {
             items: updatedItems,
             totalItems: updatedItems.reduce((sum, i) => sum + i.quantity, 0),
@@ -48,9 +45,9 @@ export const useCart = create<CartStore>()(
         });
       },
 
-      removeFromCart: (mealId) => {
+      removeFromCart: (courseId) => {
         set((state) => {
-          const updatedItems = state.items.filter((i) => i.mealId !== mealId);
+          const updatedItems = state.items.filter((i) => i.courseId !== courseId);
           return {
             items: updatedItems,
             totalItems: updatedItems.reduce((sum, i) => sum + i.quantity, 0),
@@ -58,13 +55,13 @@ export const useCart = create<CartStore>()(
         });
       },
 
-      updateQuantity: (mealId, quantity) => {
+      updateQuantity: (courseId, quantity) => {
         set((state) => {
           const updatedItems =
             quantity <= 0
-              ? state.items.filter((i) => i.mealId !== mealId)
+              ? state.items.filter((i) => i.courseId !== courseId)
               : state.items.map((i) =>
-                  i.mealId === mealId ? { ...i, quantity } : i,
+                  i.courseId === courseId ? { ...i, quantity } : i,
                 );
           return {
             items: updatedItems,
@@ -84,9 +81,7 @@ export const useCart = create<CartStore>()(
     }),
 
     {
-      // ✅ Dynamic key based on userId — each user gets their own localStorage slot
-      name: "foodhub_cart",
-      // Partition the storage so each user ID gets a separate key
+      name: "kitchenclass_cart",  // was: foodhub_cart
       storage: {
         getItem: (name) => {
           const userId = useCart.getState().userId;

@@ -9,11 +9,11 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useSession } from "@/lib/auth-client";
 
-export default function ProviderDashboard() {
+export default function InstructorDashboard() {
   const router = useRouter();
   const { data: session, isPending } = useSession();
 
-  //  Protected route - provider only
+  //  Protected route - instructor only
   useEffect(() => {
     if (!isPending && !session?.user) {
       router.push("/login");
@@ -21,7 +21,7 @@ export default function ProviderDashboard() {
 
     if (!isPending && session?.user) {
       const userRole = (session.user as { role?: string }).role;
-      if (userRole !== "PROVIDER") {
+      if (userRole !== "INSTRUCTOR") {
         router.push("/");
       }
     }
@@ -54,7 +54,7 @@ export default function ProviderDashboard() {
                 Welcome back, {user.name}!
               </h1>
               <p className="text-zinc-500 dark:text-zinc-400 mt-1">
-                Manage your menu and orders from here
+                Manage your courses and orders from here
               </p>
             </div>
           </div>
@@ -65,27 +65,27 @@ export default function ProviderDashboard() {
         <div className="max-w-4xl mx-auto">
           {/* Quick Actions Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Add New Meal */}
+            {/* Add New Course */}
             <Card className="p-8 border border-zinc-200 dark:border-zinc-800 hover:border-orange-300 dark:hover:border-orange-700 transition-all cursor-pointer group">
-              <Link href="/provider/menu" className="block">
+              <Link href="/instructor/courses" className="block">
                 <div className="w-16 h-16 rounded-full bg-orange-100 dark:bg-orange-950/50 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                   <Plus className="w-8 h-8 text-orange-500" />
                 </div>
                 <h3 className="text-xl font-bold text-zinc-900 dark:text-zinc-50 mb-2">
-                  Add New Meal
+                  Add New Course
                 </h3>
                 <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-4">
-                  Add a new meal to your menu and start receiving orders
+                  Add a new course to your list and start receiving enrollments
                 </p>
                 <Button className="w-full rounded-full bg-gradient-to-r from-orange-500 to-rose-500 hover:from-orange-600 hover:to-rose-600 border-0 text-white">
-                  Go to Menu
+                  Go to Courses
                 </Button>
               </Link>
             </Card>
 
             {/* View Orders */}
             <Card className="p-8 border border-zinc-200 dark:border-zinc-800 hover:border-blue-300 dark:hover:border-blue-700 transition-all cursor-pointer group">
-              <Link href="/provider/orders" className="block">
+              <Link href="/instructor/orders" className="block">
                 <div className="w-16 h-16 rounded-full bg-blue-100 dark:bg-blue-950/50 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                   <ShoppingBag className="w-8 h-8 text-blue-500" />
                 </div>
@@ -101,27 +101,27 @@ export default function ProviderDashboard() {
               </Link>
             </Card>
 
-            {/* Manage Menu */}
+            {/* Manage Courses */}
             <Card className="p-8 border border-zinc-200 dark:border-zinc-800 hover:border-green-300 dark:hover:border-green-700 transition-all cursor-pointer group">
-              <Link href="/provider/menu" className="block">
+              <Link href="/instructor/courses" className="block">
                 <div className="w-16 h-16 rounded-full bg-green-100 dark:bg-green-950/50 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                   <Package className="w-8 h-8 text-green-500" />
                 </div>
                 <h3 className="text-xl font-bold text-zinc-900 dark:text-zinc-50 mb-2">
-                  Manage Menu
+                  Manage Courses
                 </h3>
                 <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-4">
-                  Edit or remove existing meals from your menu
+                  Edit or remove existing courses from your list
                 </p>
                 <Button variant="outline" className="w-full rounded-full">
-                  Manage Menu
+                  Manage Courses
                 </Button>
               </Link>
             </Card>
 
             {/* Profile */}
             <Card className="p-8 border border-zinc-200 dark:border-zinc-800 hover:border-purple-300 dark:hover:border-purple-700 transition-all cursor-pointer group">
-              <Link href="/profile" className="block">
+              <Link href="/instructor/profile" className="block">
                 <div className="w-16 h-16 rounded-full bg-purple-100 dark:bg-purple-950/50 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                   <ChefHat className="w-8 h-8 text-purple-500" />
                 </div>
@@ -129,7 +129,7 @@ export default function ProviderDashboard() {
                   My Profile
                 </h3>
                 <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-4">
-                  Update your business information and contact details
+                  Update your professional information and contact details
                 </p>
                 <Button variant="outline" className="w-full rounded-full">
                   Edit Profile

@@ -2,12 +2,12 @@
 
 import { Button } from "@/components/ui/button";
 import type { CartItem } from "@/types";
-import { ShoppingBag } from "lucide-react";
+import { GraduationCap } from "lucide-react";
 
 interface OrderSummaryProps {
   items: CartItem[];
   subtotal: number;
-  deliveryFee: number;
+  // deliveryFee removed — digital product
   total: number;
   isSubmitting: boolean;
 }
@@ -15,21 +15,20 @@ interface OrderSummaryProps {
 export function OrderSummary({
   items,
   subtotal,
-  deliveryFee,
   total,
   isSubmitting,
 }: OrderSummaryProps) {
   return (
     <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-6 sticky top-4">
       <h2 className="text-lg font-bold text-zinc-900 dark:text-zinc-50 mb-5">
-        Order Summary
+        Enrollment Summary
       </h2>
 
-      {/* Items List */}
+      {/* Course List */}
       <div className="space-y-3 mb-5 max-h-64 overflow-y-auto">
         {items.map((item) => (
           <div
-            key={item.mealId}
+            key={item.courseId}
             className="flex items-center justify-between text-sm"
           >
             <div className="flex-1 min-w-0 pr-2">
@@ -47,7 +46,7 @@ export function OrderSummary({
         ))}
       </div>
 
-      {/* Pricing Breakdown */}
+      {/* Pricing Breakdown — no delivery fee */}
       <div className="space-y-3 border-t border-zinc-200 dark:border-zinc-800 pt-4 mb-5">
         <div className="flex justify-between text-sm">
           <span className="text-zinc-500 dark:text-zinc-400">Subtotal</span>
@@ -56,9 +55,9 @@ export function OrderSummary({
           </span>
         </div>
         <div className="flex justify-between text-sm">
-          <span className="text-zinc-500 dark:text-zinc-400">Delivery Fee</span>
-          <span className="font-medium text-zinc-900 dark:text-zinc-50">
-            ৳{deliveryFee}
+          <span className="text-zinc-500 dark:text-zinc-400">Platform Fee</span>
+          <span className="font-medium text-green-600 dark:text-green-400">
+            Free
           </span>
         </div>
         <div className="flex justify-between border-t border-zinc-200 dark:border-zinc-800 pt-3">
@@ -71,19 +70,19 @@ export function OrderSummary({
         </div>
       </div>
 
-      {/* Place Order Button */}
+      {/* Enroll Button */}
       <Button
         form="checkout-form"
         type="submit"
         disabled={isSubmitting}
         className="w-full rounded-full bg-gradient-to-r from-orange-500 to-rose-500 hover:from-orange-600 hover:to-rose-600 border-0 text-white h-11 gap-2"
       >
-        <ShoppingBag className="w-4 h-4" />
-        {isSubmitting ? "Placing Order..." : "Place Order"}
+        <GraduationCap className="w-4 h-4" />
+        {isSubmitting ? "Processing..." : "Confirm Enrollment"}
       </Button>
 
       <p className="text-xs text-zinc-400 text-center mt-3">
-        By placing this order, you agree to our terms & conditions
+        By enrolling, you agree to our terms & conditions
       </p>
     </div>
   );

@@ -1,45 +1,39 @@
 "use client";
 
-import {
-  MapPin,
-  ShoppingBag,
-  ShoppingCart,
-  UtensilsCrossed,
-} from "lucide-react";
+import { BookOpen, GraduationCap, Search, Star } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 const steps = [
   {
     number: "01",
-    icon: ShoppingBag,
-    title: "Browse Meals",
+    icon: Search,
+    title: "Browse Courses",
     description:
-      "Explore hundreds of delicious meals from the best local restaurants and home cooks in your area.",
+      "Explore hundreds of cooking courses from professional chefs and culinary experts across all skill levels.",
   },
   {
     number: "02",
-    icon: ShoppingCart,
-    title: "Add to Cart & Checkout",
+    icon: BookOpen,
+    title: "Enroll & Pay",
     description:
-      "Select your favorite meals, add them to your cart, and complete your order in just a few clicks.",
+      "Select your course, add to cart, and complete enrollment in just a few clicks. Instant access granted.",
   },
   {
     number: "03",
-    icon: MapPin,
-    title: "Track Your Order",
+    icon: GraduationCap,
+    title: "Start Learning",
     description:
-      "Follow your order in real-time from the kitchen to your doorstep. Always know where your food is.",
+      "Access your course immediately. Watch video lessons, follow recipes, and learn at your own pace.",
   },
   {
     number: "04",
-    icon: UtensilsCrossed,
-    title: "Enjoy Delicious Food!",
+    icon: Star,
+    title: "Master Your Craft",
     description:
-      "Sit back, relax, and enjoy fresh, hot meals delivered right to your door. Bon appétit!",
+      "Complete the course, practice your skills, and leave a review to help other aspiring chefs.",
   },
 ];
 
-// Each step card animates in when it enters the viewport
 function AnimatedStep({
   step,
   index,
@@ -60,9 +54,8 @@ function AnimatedStep({
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
-          // Stagger: each card waits a bit longer than the previous one
           setTimeout(() => setVisible(true), index * 150);
-          observer.disconnect(); // animate once only
+          observer.disconnect();
         }
       },
       { threshold: 0.2 },
@@ -82,13 +75,11 @@ function AnimatedStep({
         transition: "opacity 0.6s ease, transform 0.6s ease",
       }}
     >
-      {/* Connector line between steps */}
+      {/* Connector line */}
       {!isLast && (
         <div
           className="hidden lg:block absolute top-10 left-[60%] w-full h-px z-0"
-          style={{
-            background: "linear-gradient(to right, #fed7aa, #ffedd5)",
-          }}
+          style={{ background: "linear-gradient(to right, #fed7aa, #ffedd5)" }}
         />
       )}
 
@@ -96,7 +87,6 @@ function AnimatedStep({
       <div className="relative z-10 w-20 h-20 rounded-full bg-orange-50 dark:bg-orange-950/50 border-2 border-orange-200 dark:border-orange-800 flex items-center justify-center mb-4 transition-all duration-300 hover:border-orange-400 hover:scale-110 hover:shadow-lg hover:shadow-orange-100 dark:hover:shadow-orange-950/50 cursor-default">
         <Icon className="w-8 h-8 text-orange-500 dark:text-orange-400" />
 
-        {/* Step Number Badge — pops in with a spring bounce after the card appears */}
         <span
           className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-orange-500 text-white text-xs font-bold flex items-center justify-center"
           style={{
@@ -109,7 +99,6 @@ function AnimatedStep({
         </span>
       </div>
 
-      {/* Text */}
       <h3 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50 mb-2">
         {step.title}
       </h3>
@@ -143,7 +132,6 @@ export function HowItWorks() {
   return (
     <section className="py-16 bg-background">
       <div className="container mx-auto px-4">
-        {/* Section Header — fades in downward on scroll */}
         <div
           ref={headerRef}
           className="text-center mb-12"
@@ -157,11 +145,10 @@ export function HowItWorks() {
             How It Works
           </h2>
           <p className="text-zinc-500 dark:text-zinc-400 max-w-md mx-auto">
-            Order your favorite food in 4 simple steps
+            Start your culinary journey in 4 simple steps
           </p>
         </div>
 
-        {/* Steps Grid — each card animates in with staggered delay */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
           {steps.map((step, index) => (
             <AnimatedStep

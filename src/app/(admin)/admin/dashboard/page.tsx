@@ -19,7 +19,7 @@ import { useSession } from "@/lib/auth-client";
 type AdminStats = {
   totalUsers: number;
   totalCustomers: number;
-  totalProviders: number;
+  totalInstructors: number;
   totalOrders: number;
   totalCategories: number;
 };
@@ -113,7 +113,7 @@ export default function AdminDashboard() {
             iconBgColor="bg-blue-100 dark:bg-blue-950/50"
             label="Total Users"
             value={stats?.totalUsers || 0}
-            subtext={`${stats?.totalCustomers || 0} customers • ${stats?.totalProviders || 0} providers`}
+            subtext={`${stats?.totalCustomers || 0} customers • ${stats?.totalInstructors || 0} instructors`}
             isLoading={isLoading}
           />
 
@@ -167,7 +167,7 @@ export default function AdminDashboard() {
             iconBgColor="bg-purple-100 dark:bg-purple-950/50"
             hoverBorderColor="hover:border-purple-300 dark:hover:border-purple-700"
             title="Manage Categories"
-            description="Add, edit, or remove meal categories"
+            description="Add, edit, or remove course categories"
             buttonText="View Categories"
           />
         </div>

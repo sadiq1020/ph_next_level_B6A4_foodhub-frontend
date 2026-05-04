@@ -5,41 +5,17 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
-import { OrderCard } from "@/components/provider/OrderCard";
+import { OrderCard } from "@/components/instructor/OrderCard";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { api } from "@/lib/api";
 import { useSession } from "@/lib/auth-client";
+import { Order, EnrollmentItem as OrderItem } from "@/types";
 
-type OrderItem = {
-  id: string;
-  quantity: number;
-  price: number;
-  meal: {
-    id: string;
-    name: string;
-    image?: string | null;
-  };
-};
 
-type Order = {
-  id: string;
-  orderNumber: string;
-  status: "PLACED" | "PREPARING" | "READY" | "DELIVERED" | "CANCELLED";
-  total: number;
-  deliveryAddress: string;
-  phone: string;
-  createdAt: string;
-  customer: {
-    id: string;
-    name: string;
-    email: string;
-  };
-  items: OrderItem[];
-};
 
-export default function ProviderOrdersPage() {
+export default function InstructorOrdersPage() {
   const router = useRouter();
   const { data: session, isPending } = useSession();
   const [orders, setOrders] = useState<Order[]>([]);
@@ -55,7 +31,7 @@ export default function ProviderOrdersPage() {
 
     if (!isPending && session?.user) {
       const userRole = (session.user as { role?: string }).role;
-      if (userRole !== "PROVIDER") {
+      if (userRole !== "INSTRUCTOR") {
         router.push("/");
       }
     }
@@ -69,7 +45,7 @@ export default function ProviderOrdersPage() {
       if (showToast) setIsRefreshing(true);
       else setIsLoading(true);
 
-      const data = await api.get("/provider/orders");
+      const data = await api.get("/instructor/orders");
       setOrders(data.data || data);
 
       if (showToast) {

@@ -34,16 +34,16 @@ type ReviewFormData = z.infer<typeof reviewSchema>;
 interface ReviewFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  mealId: string;
-  mealName: string;
-  onSuccess: (mealId: string) => void; // ✅ Pass mealId back so caller can navigate to meal page
+  courseId: string;        // was: mealId
+  courseName: string;      // was: mealName
+  onSuccess: (courseId: string) => void;
 }
 
 export function ReviewForm({
   open,
   onOpenChange,
-  mealId,
-  mealName,
+  courseId,
+  courseName,
   onSuccess,
 }: ReviewFormProps) {
   const [hoveredStar, setHoveredStar] = useState(0);
@@ -70,14 +70,14 @@ export function ReviewForm({
 
     try {
       await api.post("/reviews", {
-        mealId,
+        courseId,                          // was: mealId
         rating: data.rating,
         comment: data.comment || undefined,
       });
 
       toast.success("Review submitted successfully!", { id: toastId });
       reset();
-      onSuccess(mealId); // ✅ Pass mealId so caller can navigate to the meal page
+      onSuccess(courseId);
       onOpenChange(false);
     } catch (error: unknown) {
       const message =
@@ -92,7 +92,7 @@ export function ReviewForm({
         <DialogHeader>
           <DialogTitle>Write a Review</DialogTitle>
           <DialogDescription>
-            Share your experience with {mealName}
+            Share your experience with {courseName}
           </DialogDescription>
         </DialogHeader>
 
@@ -129,7 +129,7 @@ export function ReviewForm({
               <FieldLabel htmlFor="comment">Comment (Optional)</FieldLabel>
               <Textarea
                 id="comment"
-                placeholder="Tell us about your experience..."
+                placeholder="Tell us about your learning experience..."
                 rows={4}
                 {...register("comment")}
               />
@@ -137,7 +137,6 @@ export function ReviewForm({
             </Field>
           </FieldGroup>
 
-          {/* Actions */}
           <div className="flex justify-end gap-3 pt-4">
             <Button
               type="button"

@@ -74,8 +74,8 @@ export function LoginForm({ ...props }: React.ComponentProps<typeof Card>) {
 
       if (role === "ADMIN") {
         router.replace("/admin/dashboard");
-      } else if (role === "PROVIDER") {
-        router.replace("/provider/dashboard");
+      } else if (role === "INSTRUCTOR") {
+        router.replace("/instructor/dashboard");
       } else {
         router.replace("/"); // Customer goes to home
       }

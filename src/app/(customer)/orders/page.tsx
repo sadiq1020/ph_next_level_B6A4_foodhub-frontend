@@ -144,13 +144,13 @@ export default function OrdersPage() {
             </h2>
             <p className="text-zinc-500 dark:text-zinc-400 mb-8 max-w-sm">
               Looks like you haven&apos;t placed any orders yet. Browse our
-              meals to get started!
+              courses to get started!
             </p>
             <Button
               asChild
               className="rounded-full bg-gradient-to-r from-orange-500 to-rose-500 hover:from-orange-600 hover:to-rose-600 border-0 text-white px-8"
             >
-              <Link href="/meals">Browse Meals</Link>
+              <Link href="/courses">Browse Courses</Link>
             </Button>
           </div>
         )}

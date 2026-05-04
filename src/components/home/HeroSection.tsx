@@ -7,8 +7,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
-// Floating food emojis that drift around the background
-const FOOD_EMOJIS = ["🍕", "🍜", "🍱", "🌮", "🍔", "🥗", "🍣", "🍛"];
+// Culinary / cooking emojis
+const FOOD_EMOJIS = ["🍳", "👨‍🍳", "🥘", "🎂", "🍞", "🔪", "🥗", "🍜"];
 
 function FloatingEmoji({
   emoji,
@@ -27,7 +27,6 @@ function FloatingEmoji({
   );
 }
 
-// Inline keyframes injected once into the document
 const KEYFRAMES = `
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(24px); }
@@ -56,7 +55,6 @@ const KEYFRAMES = `
 }
 `;
 
-// Staggered fade-up style helper
 function fadeUp(delayMs: number): React.CSSProperties {
   return {
     opacity: 0,
@@ -69,7 +67,6 @@ export function HeroSection() {
   const [searchQuery, setSearchQuery] = useState("");
   const router = useRouter();
 
-  // Inject keyframes once
   useEffect(() => {
     if (document.getElementById("hero-keyframes")) return;
     const style = document.createElement("style");
@@ -82,86 +79,21 @@ export function HeroSection() {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      router.push(`/meals?search=${encodeURIComponent(searchQuery.trim())}`);
+      router.push(`/courses?search=${encodeURIComponent(searchQuery.trim())}`);
     } else {
-      router.push("/meals");
+      router.push("/courses");
     }
   };
 
-  // Fixed positions for floating emojis so they don't shift on hydration
   const floatingEmojis = [
-    {
-      emoji: "🍕",
-      style: {
-        top: "12%",
-        left: "8%",
-        animation: "float 6s ease-in-out infinite",
-        animationDelay: "0s",
-      },
-    },
-    {
-      emoji: "🍜",
-      style: {
-        top: "20%",
-        right: "9%",
-        animation: "float 7s ease-in-out infinite",
-        animationDelay: "1s",
-      },
-    },
-    {
-      emoji: "🍱",
-      style: {
-        top: "55%",
-        left: "4%",
-        animation: "float 8s ease-in-out infinite",
-        animationDelay: "2s",
-      },
-    },
-    {
-      emoji: "🌮",
-      style: {
-        top: "70%",
-        right: "6%",
-        animation: "float 6.5s ease-in-out infinite",
-        animationDelay: "0.5s",
-      },
-    },
-    {
-      emoji: "🍔",
-      style: {
-        top: "35%",
-        left: "14%",
-        animation: "float 9s ease-in-out infinite",
-        animationDelay: "1.5s",
-      },
-    },
-    {
-      emoji: "🥗",
-      style: {
-        top: "40%",
-        right: "12%",
-        animation: "float 7.5s ease-in-out infinite",
-        animationDelay: "3s",
-      },
-    },
-    {
-      emoji: "🍣",
-      style: {
-        bottom: "18%",
-        left: "10%",
-        animation: "float 8.5s ease-in-out infinite",
-        animationDelay: "2.5s",
-      },
-    },
-    {
-      emoji: "🍛",
-      style: {
-        bottom: "22%",
-        right: "8%",
-        animation: "float 6s ease-in-out infinite",
-        animationDelay: "4s",
-      },
-    },
+    { emoji: "🍳", style: { top: "12%", left: "8%", animation: "float 6s ease-in-out infinite", animationDelay: "0s" } },
+    { emoji: "👨‍🍳", style: { top: "20%", right: "9%", animation: "float 7s ease-in-out infinite", animationDelay: "1s" } },
+    { emoji: "🥘", style: { top: "55%", left: "4%", animation: "float 8s ease-in-out infinite", animationDelay: "2s" } },
+    { emoji: "🎂", style: { top: "70%", right: "6%", animation: "float 6.5s ease-in-out infinite", animationDelay: "0.5s" } },
+    { emoji: "🍞", style: { top: "35%", left: "14%", animation: "float 9s ease-in-out infinite", animationDelay: "1.5s" } },
+    { emoji: "🔪", style: { top: "40%", right: "12%", animation: "float 7.5s ease-in-out infinite", animationDelay: "3s" } },
+    { emoji: "🥗", style: { bottom: "18%", left: "10%", animation: "float 8.5s ease-in-out infinite", animationDelay: "2.5s" } },
+    { emoji: "🍜", style: { bottom: "22%", right: "8%", animation: "float 6s ease-in-out infinite", animationDelay: "4s" } },
   ];
 
   return (
@@ -169,54 +101,34 @@ export function HeroSection() {
       {/* Background gradient */}
       <div className="absolute inset-0 bg-gradient-to-br from-orange-50 via-amber-50 to-rose-50 dark:from-orange-950/30 dark:via-zinc-900 dark:to-rose-950/20" />
 
-      {/* Animated background blobs */}
-      <div
-        className="absolute top-20 left-10 w-72 h-72 bg-orange-300/20 dark:bg-orange-500/10 rounded-full blur-3xl"
-        style={{ animation: "blobDrift 8s ease-in-out infinite" }}
-      />
-      <div
-        className="absolute bottom-20 right-10 w-96 h-96 bg-rose-300/20 dark:bg-rose-500/10 rounded-full blur-3xl"
-        style={{ animation: "blobDrift 10s ease-in-out infinite reverse" }}
-      />
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-amber-200/10 dark:bg-amber-500/5 rounded-full blur-3xl" />
+      {/* Animated blobs */}
+      <div className="absolute top-20 left-10 w-72 h-72 bg-orange-300/20 dark:bg-orange-500/10 rounded-full blur-3xl" style={{ animation: "blobDrift 8s ease-in-out infinite" }} />
+      <div className="absolute bottom-20 right-10 w-96 h-96 bg-rose-300/20 dark:bg-rose-500/10 rounded-full blur-3xl" style={{ animation: "blobDrift 10s ease-in-out infinite reverse" }} />
 
-      {/* Floating food emojis */}
+      {/* Floating emojis */}
       {floatingEmojis.map((item, i) => (
         <FloatingEmoji key={i} emoji={item.emoji} style={item.style} />
       ))}
 
       {/* Content */}
       <div className="relative z-10 container mx-auto px-4 text-center">
-        {/* Badge — fades down from above */}
-        <div
-          style={{
-            opacity: 0,
-            animation: "fadeDown 0.6s ease forwards",
-            animationDelay: "100ms",
-            display: "inline-flex",
-          }}
-        >
+        {/* Badge */}
+        <div style={{ opacity: 0, animation: "fadeDown 0.6s ease forwards", animationDelay: "100ms", display: "inline-flex" }}>
           <div className="inline-flex items-center gap-2 bg-orange-100 dark:bg-orange-950/50 border border-orange-200 dark:border-orange-800 text-orange-700 dark:text-orange-300 text-sm font-medium px-4 py-1.5 rounded-full mb-6">
             <span className="w-2 h-2 bg-orange-500 rounded-full animate-pulse" />
-            Fresh meals delivered daily
+            Learn from professional chefs
           </div>
         </div>
 
-        {/* Headline — fades up */}
+        {/* Headline */}
         <div style={fadeUp(250)}>
           <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-6 text-zinc-900 dark:text-zinc-50">
-            Discover & Order{" "}
+            Master the Art of{" "}
             <span className="relative">
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-rose-500">
-                Delicious Meals
+                Cooking
               </span>
-              {/* Underline draws itself in */}
-              <svg
-                className="absolute -bottom-2 left-0 w-full"
-                viewBox="0 0 300 12"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
+              <svg className="absolute -bottom-2 left-0 w-full" viewBox="0 0 300 12" fill="none">
                 <path
                   d="M2 8 Q75 2 150 8 Q225 14 298 8"
                   stroke="url(#paint0_linear)"
@@ -224,19 +136,10 @@ export function HeroSection() {
                   strokeLinecap="round"
                   strokeDasharray="320"
                   strokeDashoffset="320"
-                  style={{
-                    animation: "drawLine 1s ease forwards",
-                    animationDelay: "800ms",
-                  }}
+                  style={{ animation: "drawLine 1s ease forwards", animationDelay: "800ms" }}
                 />
                 <defs>
-                  <linearGradient
-                    id="paint0_linear"
-                    x1="0"
-                    y1="0"
-                    x2="300"
-                    y2="0"
-                  >
+                  <linearGradient id="paint0_linear" x1="0" y1="0" x2="300" y2="0">
                     <stop stopColor="#f97316" />
                     <stop offset="1" stopColor="#f43f5e" />
                   </linearGradient>
@@ -246,16 +149,16 @@ export function HeroSection() {
           </h1>
         </div>
 
-        {/* Subheadline — fades up */}
+        {/* Subheadline */}
         <div style={fadeUp(450)}>
           <p className="text-lg md:text-xl text-zinc-500 dark:text-zinc-400 max-w-2xl mx-auto mb-10 leading-relaxed">
-            Connect with the best local food providers in your area. Browse
-            hundreds of fresh, homemade meals and get them delivered right to
-            your door.
+            Learn from professional chefs with expert-led cooking courses.
+            From beginner baking to advanced culinary techniques — start your
+            journey today.
           </p>
         </div>
 
-        {/* Search Bar — fades up */}
+        {/* Search Bar */}
         <div style={fadeUp(600)}>
           <form
             onSubmit={handleSearch}
@@ -264,7 +167,7 @@ export function HeroSection() {
             <Search className="w-5 h-5 text-zinc-400 shrink-0" />
             <Input
               type="text"
-              placeholder="Search for biriyani, pizza, salad..."
+              placeholder="Search for baking, knife skills, pasta..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="border-0 bg-transparent shadow-none focus-visible:ring-0 placeholder:text-zinc-400 text-zinc-900 dark:text-zinc-100 flex-1"
@@ -279,7 +182,7 @@ export function HeroSection() {
           </form>
         </div>
 
-        {/* CTA Buttons — fades up */}
+        {/* CTA Buttons */}
         <div style={fadeUp(750)}>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Button
@@ -287,8 +190,8 @@ export function HeroSection() {
               size="lg"
               className="rounded-full bg-gradient-to-r from-orange-500 to-rose-500 hover:from-orange-600 hover:to-rose-600 border-0 text-white px-8 shadow-lg shadow-orange-200 dark:shadow-orange-950 transition-transform duration-200 hover:scale-105"
             >
-              <Link href="/meals" className="flex items-center gap-2">
-                Browse Meals
+              <Link href="/courses" className="flex items-center gap-2">
+                Browse Courses
                 <ArrowRight className="w-4 h-4" />
               </Link>
             </Button>
@@ -299,17 +202,17 @@ export function HeroSection() {
               variant="outline"
               className="rounded-full px-8 border-zinc-300 dark:border-zinc-700 transition-transform duration-200 hover:scale-105"
             >
-              <Link href="/providers">View Providers</Link>
+              <Link href="/instructors">Meet Instructors</Link>
             </Button>
           </div>
         </div>
 
-        {/* Stats — pop in one by one */}
+        {/* Stats */}
         <div className="flex flex-wrap items-center justify-center gap-8 mt-14">
           {[
-            { value: "500+", label: "Meals Available" },
-            { value: "50+", label: "Local Providers" },
-            { value: "10k+", label: "Happy Customers" },
+            { value: "200+", label: "Courses Available" },
+            { value: "50+", label: "Expert Instructors" },
+            { value: "10k+", label: "Students Enrolled" },
           ].map((stat, i) => (
             <div
               key={stat.label}
@@ -333,16 +236,8 @@ export function HeroSection() {
 
       {/* Bottom wave */}
       <div className="absolute bottom-0 left-0 right-0">
-        <svg
-          viewBox="0 0 1440 80"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-          className="w-full"
-        >
-          <path
-            d="M0 80 L0 40 Q360 0 720 40 Q1080 80 1440 40 L1440 80 Z"
-            className="fill-background"
-          />
+        <svg viewBox="0 0 1440 80" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full">
+          <path d="M0 80 L0 40 Q360 0 720 40 Q1080 80 1440 40 L1440 80 Z" className="fill-background" />
         </svg>
       </div>
     </section>

@@ -1,32 +1,10 @@
 "use client";
 
 import { Card } from "@/components/ui/card";
-import { Calendar, MapPin, User } from "lucide-react";
+import { Calendar, GraduationCap, User } from "lucide-react";
+import { Order } from "@/types";
 
-type OrderItem = {
-  id: string;
-  quantity: number;
-  price: number;
-  meal: {
-    id: string;
-    name: string;
-  };
-};
 
-type Order = {
-  id: string;
-  orderNumber: string;
-  status: "PLACED" | "PREPARING" | "READY" | "DELIVERED" | "CANCELLED";
-  total: number;
-  deliveryAddress: string;
-  createdAt: string;
-  customer: {
-    id: string;
-    name: string;
-    email: string;
-  };
-  items: OrderItem[];
-};
 
 interface AdminOrderCardProps {
   order: Order;
@@ -34,14 +12,14 @@ interface AdminOrderCardProps {
 
 const getStatusStyle = (status: string) => {
   switch (status) {
-    case "PLACED":
-      return "bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300";
-    case "PREPARING":
+    case "PENDING":
       return "bg-yellow-100 text-yellow-700 dark:bg-yellow-950 dark:text-yellow-300";
-    case "READY":
-      return "bg-orange-100 text-orange-700 dark:bg-orange-950 dark:text-orange-300";
-    case "DELIVERED":
+    case "ACTIVE":
+      return "bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300";
+    case "COMPLETED":
       return "bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-300";
+    case "EXPIRED":
+      return "bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-400";
     case "CANCELLED":
       return "bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300";
     default:
@@ -72,15 +50,16 @@ export function AdminOrderCard({ order }: AdminOrderCardProps) {
           <div className="flex items-center gap-2 text-sm text-zinc-600 dark:text-zinc-400">
             <User className="w-4 h-4 shrink-0" />
             <span>
-              {order.customer.name} • {order.customer.email}
+              {order.customer?.name || "Unknown"} • {order.customer?.email || "N/A"}
             </span>
           </div>
 
-          {/* Delivery Address */}
-          <div className="flex items-center gap-2 text-sm text-zinc-600 dark:text-zinc-400">
-            <MapPin className="w-4 h-4 shrink-0" />
-            <span className="line-clamp-1">{order.deliveryAddress}</span>
-          </div>
+          {/* Note / Access Info */}
+          {order.notes && (
+            <div className="flex items-center gap-2 text-sm text-zinc-500 italic">
+              <span>"{order.notes}"</span>
+            </div>
+          )}
 
           {/* Date */}
           <div className="flex items-center gap-2 text-sm text-zinc-400">
@@ -99,20 +78,21 @@ export function AdminOrderCard({ order }: AdminOrderCardProps) {
           {/* Items */}
           <div className="pt-2">
             <p className="text-xs font-medium text-zinc-500 dark:text-zinc-400 mb-2">
-              Items ({order.items.length})
+              Courses ({order.items?.length || 0})
             </p>
             <div className="space-y-1">
-              {order.items.slice(0, 3).map((item) => (
+              {order.items?.slice(0, 3).map((item) => (
                 <p
                   key={item.id}
                   className="text-sm text-zinc-600 dark:text-zinc-400"
                 >
-                  {item.quantity}x {item.meal.name}
+                  <GraduationCap className="w-3 h-3 inline mr-1" />
+                  {item.course?.name || "Unknown Course"}
                 </p>
               ))}
-              {order.items.length > 3 && (
-                <p className="text-xs text-zinc-400">
-                  +{order.items.length - 3} more items
+              {order.items && order.items.length > 3 && (
+                <p className="text-xs text-zinc-400 pl-4">
+                  +{order.items.length - 3} more courses
                 </p>
               )}
             </div>

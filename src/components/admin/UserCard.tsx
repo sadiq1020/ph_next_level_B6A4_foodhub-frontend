@@ -9,7 +9,7 @@ type User = {
   name: string;
   email: string;
   phone?: string | null;
-  role: "CUSTOMER" | "PROVIDER" | "ADMIN";
+  role: "CUSTOMER" | "INSTRUCTOR" | "ADMIN";
   isActive: boolean;
   emailVerified: boolean;
   createdAt: string;
@@ -24,7 +24,7 @@ const getRoleBadgeStyle = (role: string) => {
   switch (role) {
     case "ADMIN":
       return "bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300";
-    case "PROVIDER":
+    case "INSTRUCTOR":
       return "bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300";
     case "CUSTOMER":
       return "bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-300";

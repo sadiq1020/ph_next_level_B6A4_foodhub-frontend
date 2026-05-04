@@ -37,8 +37,8 @@ import { ModeToggle } from "./ModeToggle";
 
 // nav links
 const navLinks = [
-  { title: "Browse Meals", url: "/meals" },
-  { title: "Providers", url: "/providers" },
+  { title: "Browse Courses", url: "/courses" },
+  { title: "Instructors", url: "/instructors" },
 ];
 
 const Navbar = ({ className }: { className?: string }) => {
@@ -99,14 +99,14 @@ const Navbar = ({ className }: { className?: string }) => {
       );
     }
 
-    if (role === "PROVIDER") {
+    if (role === "INSTRUCTOR") {
       return (
         <>
           <DropdownMenuItem asChild>
-            <Link href="/profile">Profile</Link>
+            <Link href="/instructor/profile">Profile</Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
-            <Link href="/provider/dashboard">Dashboard</Link>
+            <Link href="/instructor/dashboard">Dashboard</Link>
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={handleLogout} className="text-red-500">
@@ -188,13 +188,13 @@ const Navbar = ({ className }: { className?: string }) => {
             <Link href="/" className="flex items-center gap-2">
               <Image
                 src={logo}
-                alt="FoodHub"
+                alt="KitchenClass"
                 width={40}
                 height={40}
                 className="h-10 w-10"
               />
               <span className="text-xl font-bold">
-                <span className="text-orange-500">Food</span>Hub
+                <span className="text-orange-500">Kitchen</span>Class
               </span>
             </Link>
 
@@ -248,13 +248,13 @@ const Navbar = ({ className }: { className?: string }) => {
             <Link href="/" className="flex items-center gap-2">
               <Image
                 src={logo}
-                alt="FoodHub"
+                alt="KitchenClass"
                 width={30}
                 height={30}
                 className="h-10 w-10"
               />
               <span className="text-xl font-bold">
-                <span className="text-orange-500">Food</span>Hub
+                <span className="text-orange-500">Kitchen</span>Class
               </span>
             </Link>
 
@@ -292,13 +292,13 @@ const Navbar = ({ className }: { className?: string }) => {
                       <Link href="/" className="flex items-center gap-2">
                         <Image
                           src={logo}
-                          alt="FoodHub"
+                          alt="KitchenClass"
                           width={24}
                           height={24}
                           className="h-8 w-8"
                         />
                         <span className="text-lg font-semibold">
-                          <span className="text-orange-500">Food</span>Hub
+                          <span className="text-orange-500">Kitchen</span>Class
                         </span>
                       </Link>
                     </SheetTitle>
@@ -350,13 +350,13 @@ const Navbar = ({ className }: { className?: string }) => {
                               </Button>
                             </>
                           )}
-                          {role === "PROVIDER" && (
+                          {role === "INSTRUCTOR" && (
                             <>
                               <Button asChild variant="outline">
-                                <Link href="/profile">Profile</Link>
+                                <Link href="/instructor/profile">Profile</Link>
                               </Button>
                               <Button asChild variant="outline">
-                                <Link href="/provider/dashboard">
+                                <Link href="/instructor/dashboard">
                                   Dashboard
                                 </Link>
                               </Button>

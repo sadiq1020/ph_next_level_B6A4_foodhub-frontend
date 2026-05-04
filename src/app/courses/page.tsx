@@ -1,17 +1,16 @@
 "use client";
 
-import { MealCard } from "@/components/meals/MealCard";
-import { FilterState, MealFilters } from "@/components/meals/MealFilters";
+import { CourseCard } from "@/components/courses/CourseCard";
+import { CourseFilters, FilterState } from "@/components/courses/CourseFilters";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { api } from "@/lib/api";
-import { Meal } from "@/types";
-import { UtensilsCrossed } from "lucide-react";
+import { Course } from "@/types";
+import { GraduationCap } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useCallback, useEffect, useState } from "react";
 
-// Loading skeleton grid
-function MealsGridSkeleton() {
+function CoursesGridSkeleton() {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
       {Array.from({ length: 9 }).map((_, i) => (
@@ -35,61 +34,49 @@ function MealsGridSkeleton() {
   );
 }
 
-// ✅ Separate component that uses useSearchParams
-function MealsContent() {
+function CoursesContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
-  const [meals, setMeals] = useState<Meal[]>([]);
+  const [courses, setCourses] = useState<Course[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [totalCount, setTotalCount] = useState(0);
 
-  // Read initial filters from URL params
   const initialFilters = {
     search: searchParams.get("search") || "",
     categoryId: searchParams.get("category") || "",
-    dietary: [],
+    difficulty: "",
     minPrice: "",
     maxPrice: "",
   };
 
-  // Fetch meals with filters
-  const fetchMeals = useCallback(async (filters: FilterState) => {
+  const fetchCourses = useCallback(async (filters: FilterState) => {
     setIsLoading(true);
     try {
-      // Build query string from filters
       const params = new URLSearchParams();
-      if (filters.search) params.set("search", filters.search);
+      if (filters.search)     params.set("search", filters.search);
       if (filters.categoryId) params.set("categoryId", filters.categoryId);
-      if (filters.minPrice) params.set("minPrice", filters.minPrice);
-      if (filters.maxPrice) params.set("maxPrice", filters.maxPrice);
-      if (filters.dietary.length > 0) {
-        params.set("dietary", filters.dietary.join(","));
-      }
+      if (filters.difficulty) params.set("difficulty", filters.difficulty);
+      if (filters.minPrice)   params.set("minPrice", filters.minPrice);
+      if (filters.maxPrice)   params.set("maxPrice", filters.maxPrice);
 
       const query = params.toString();
-      const data = await api.get(`/meals${query ? `?${query}` : ""}`);
+      const data = await api.get(`/courses${query ? `?${query}` : ""}`);
       const result = data.data || data;
-      setMeals(Array.isArray(result) ? result : []);
+      setCourses(Array.isArray(result) ? result : []);
       setTotalCount(data.total || result.length || 0);
     } catch {
-      setMeals([]);
+      setCourses([]);
       setTotalCount(0);
     } finally {
       setIsLoading(false);
     }
   }, []);
 
-  // Fetch on mount with initial URL filters
   useEffect(() => {
-    fetchMeals(initialFilters as FilterState);
+    fetchCourses(initialFilters as FilterState);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  // Called by MealFilters whenever filters change
-  const handleFilterChange = (filters: FilterState) => {
-    fetchMeals(filters);
-  };
 
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
@@ -97,12 +84,12 @@ function MealsContent() {
       <div className="bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800">
         <div className="container mx-auto px-4 py-8">
           <h1 className="text-3xl font-bold text-zinc-900 dark:text-zinc-50">
-            Browse Meals
+            Browse Courses
           </h1>
           <p className="text-zinc-500 dark:text-zinc-400 mt-1">
             {isLoading
-              ? "Finding meals..."
-              : `${totalCount} meal${totalCount !== 1 ? "s" : ""} available`}
+              ? "Finding courses..."
+              : `${totalCount} course${totalCount !== 1 ? "s" : ""} available`}
           </p>
         </div>
       </div>
@@ -112,33 +99,31 @@ function MealsContent() {
           {/* Filters Sidebar */}
           <aside className="w-full lg:w-72 shrink-0">
             <div className="sticky top-4">
-              <MealFilters
-                onFilterChange={handleFilterChange}
+              <CourseFilters
+                onFilterChange={fetchCourses}
                 initialFilters={initialFilters}
               />
             </div>
           </aside>
 
-          {/* Meals Grid */}
+          {/* Courses Grid */}
           <main className="flex-1">
             {isLoading ? (
-              <MealsGridSkeleton />
-            ) : meals.length === 0 ? (
-              // Empty state
+              <CoursesGridSkeleton />
+            ) : courses.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-24 text-center">
                 <div className="w-20 h-20 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center mb-4">
-                  <UtensilsCrossed className="w-8 h-8 text-zinc-400" />
+                  <GraduationCap className="w-8 h-8 text-zinc-400" />
                 </div>
                 <h3 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50 mb-2">
-                  No meals found
+                  No courses found
                 </h3>
                 <p className="text-zinc-500 dark:text-zinc-400 max-w-sm mb-6">
-                  Try adjusting your filters or search term to find what
-                  you&apos;re looking for.
+                  Try adjusting your filters or search term.
                 </p>
                 <Button
                   variant="outline"
-                  onClick={() => router.push("/meals")}
+                  onClick={() => router.push("/courses")}
                   className="rounded-full"
                 >
                   Clear all filters
@@ -146,8 +131,8 @@ function MealsContent() {
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
-                {meals.map((meal) => (
-                  <MealCard key={meal.id} meal={meal} />
+                {courses.map((course) => (
+                  <CourseCard key={course.id} course={course} />
                 ))}
               </div>
             )}
@@ -158,11 +143,10 @@ function MealsContent() {
   );
 }
 
-// ✅ Main page component with Suspense wrapper
-export default function AllMealsPage() {
+export default function AllCoursesPage() {
   return (
-    <Suspense fallback={<MealsGridSkeleton />}>
-      <MealsContent />
+    <Suspense fallback={<CoursesGridSkeleton />}>
+      <CoursesContent />
     </Suspense>
   );
 }

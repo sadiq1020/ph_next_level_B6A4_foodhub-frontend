@@ -1,6 +1,6 @@
 import type { NextConfig } from "next";
 
-const BACKEND_URL = "https://ph-next-level-b6a4-foodhub-backend.onrender.com";
+const BACKEND_URL = process.env.BACKEND_URL || "http://localhost:5000";
 
 const nextConfig: NextConfig = {
   images: {

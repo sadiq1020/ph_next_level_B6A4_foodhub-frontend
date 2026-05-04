@@ -18,13 +18,13 @@ type User = {
   name: string;
   email: string;
   phone?: string | null;
-  role: "CUSTOMER" | "PROVIDER" | "ADMIN";
+  role: "CUSTOMER" | "INSTRUCTOR" | "ADMIN";
   isActive: boolean;
   emailVerified: boolean;
   createdAt: string;
 };
 
-type RoleFilter = "ALL" | "CUSTOMER" | "PROVIDER" | "ADMIN";
+type RoleFilter = "ALL" | "CUSTOMER" | "INSTRUCTOR" | "ADMIN";
 
 export default function AdminUsersPage() {
   const router = useRouter();
@@ -153,7 +153,7 @@ export default function AdminUsersPage() {
   const roleCounts = {
     ALL: users.length,
     CUSTOMER: users.filter((u) => u.role === "CUSTOMER").length,
-    PROVIDER: users.filter((u) => u.role === "PROVIDER").length,
+    INSTRUCTOR: users.filter((u) => u.role === "INSTRUCTOR").length,
     ADMIN: users.filter((u) => u.role === "ADMIN").length,
   };
 
@@ -187,7 +187,7 @@ export default function AdminUsersPage() {
 
         {/* Role Filter Tabs */}
         <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
-          {(["ALL", "CUSTOMER", "PROVIDER", "ADMIN"] as RoleFilter[]).map(
+          {(["ALL", "CUSTOMER", "INSTRUCTOR", "ADMIN"] as RoleFilter[]).map(
             (role) => (
               <Button
                 key={role}

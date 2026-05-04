@@ -18,7 +18,7 @@ export function CategoryCard({ category }: { category: Category }) {
 
   return (
     <Card
-      onClick={() => router.push(`/meals?category=${category.id}`)}
+      onClick={() => router.push(`/courses?category=${category.id}`)}
       className="group cursor-pointer overflow-hidden border border-zinc-200 dark:border-zinc-800 hover:border-orange-300 dark:hover:border-orange-700 hover:shadow-lg transition-all duration-300 p-0"
     >
       <div className="relative w-full aspect-square overflow-hidden">
@@ -43,7 +43,7 @@ export function CategoryCard({ category }: { category: Category }) {
         </h3>
         {category._count && (
           <p className="text-xs text-zinc-400 mt-0.5">
-            {category._count.meals} meals
+            {category._count.courses} courses
           </p>
         )}
       </div>

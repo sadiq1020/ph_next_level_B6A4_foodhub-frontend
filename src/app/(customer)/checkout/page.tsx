@@ -16,12 +16,9 @@ import { useCart } from "@/context/CartContext";
 import { api } from "@/lib/api";
 import { useSession } from "@/lib/auth-client";
 
-const DELIVERY_FEE = 50;
-
 // ── Zod Schema ─────────────────────────────────────────
+// Removed: deliveryAddress, phone (digital product — no shipping)
 const checkoutSchema = z.object({
-  deliveryAddress: z.string().min(10, "Address must be at least 10 characters"),
-  phone: z.string().regex(/^[0-9]{10,15}$/, "Phone must be 10-15 digits"),
   notes: z.string().optional(),
 });
 
@@ -39,26 +36,16 @@ export default function CheckoutPage() {
   } = useForm<CheckoutFormData>({
     resolver: zodResolver(checkoutSchema),
     defaultValues: {
-      deliveryAddress: "",
-      phone: "",
       notes: "",
     },
   });
 
-  //  Protected route
+  // Protected route
   useEffect(() => {
     if (!isPending && !session?.user) {
       router.push("/login");
     }
   }, [session, isPending, router]);
-
-  //  Redirect if cart empty
-  // useEffect(() => {
-  //   if (items.length === 0 && !isPending) {
-  //     toast.error("Your cart is empty");
-  //     router.push("/meals");
-  //   }
-  // }, [items, isPending, router]);
 
   if (isPending) {
     return (
@@ -71,37 +58,33 @@ export default function CheckoutPage() {
   if (!session?.user || items.length === 0) return null;
 
   const subtotal = getCartTotal();
-  const total = subtotal + DELIVERY_FEE;
+  const total = subtotal; // no delivery fee for digital courses
 
-  //  Place order
+  // Enroll in courses
   const onSubmit = async (data: CheckoutFormData) => {
-    const toastId = toast.loading("Placing your order...");
+    const toastId = toast.loading("Processing enrollment...");
 
     try {
       await api.post("/orders", {
-        deliveryAddress: data.deliveryAddress,
-        phone: data.phone,
         notes: data.notes || "",
         items: items.map((item) => ({
-          mealId: item.mealId,
+          courseId: item.courseId,   // was: mealId
           quantity: item.quantity,
-          price: item.price,
         })),
         subtotal,
-        deliveryFee: DELIVERY_FEE,
         total,
       });
 
-      toast.success("Order placed successfully!", {
+      toast.success("Enrollment successful!", {
         id: toastId,
-        description: "You can track your order in My Orders",
+        description: "You can access your courses from My Enrollments",
       });
 
       clearCart();
       router.push("/orders");
     } catch (error: unknown) {
       const message =
-        error instanceof Error ? error.message : "Failed to place order";
+        error instanceof Error ? error.message : "Failed to complete enrollment";
       toast.error(message, { id: toastId });
     }
   };
@@ -123,10 +106,10 @@ export default function CheckoutPage() {
             </Link>
           </Button>
           <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">
-            Checkout
+            Complete Enrollment
           </h1>
           <p className="text-zinc-500 dark:text-zinc-400 text-sm mt-0.5">
-            Complete your order
+            Review your courses and confirm enrollment
           </p>
         </div>
       </div>
@@ -147,7 +130,6 @@ export default function CheckoutPage() {
             <OrderSummary
               items={items}
               subtotal={subtotal}
-              deliveryFee={DELIVERY_FEE}
               total={total}
               isSubmitting={isSubmitting}
             />

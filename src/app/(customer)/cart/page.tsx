@@ -9,7 +9,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
-const DELIVERY_FEE = 50;
+
 
 export default function CartPage() {
   const router = useRouter();
@@ -36,8 +36,7 @@ export default function CartPage() {
   // Don't render if not authenticated
   if (!session?.user) return null;
 
-  const subtotal = getCartTotal();
-  const total = subtotal + (items.length > 0 ? DELIVERY_FEE : 0);
+  const total = getCartTotal();
 
   //  Empty cart state
   if (items.length === 0) {
@@ -51,14 +50,14 @@ export default function CartPage() {
             Your cart is empty
           </h2>
           <p className="text-zinc-500 dark:text-zinc-400 mb-8 max-w-sm">
-            Looks like you haven&apos;t added anything yet. Browse our delicious
-            meals!
+            Looks like you haven&apos;t added anything yet. Browse our
+            courses!
           </p>
           <Button
             asChild
             className="rounded-full bg-gradient-to-r from-orange-500 to-rose-500 hover:from-orange-600 hover:to-rose-600 border-0 text-white px-8"
           >
-            <Link href="/meals">Browse Meals</Link>
+            <Link href="/courses">Browse Courses</Link>
           </Button>
         </div>
       </div>
@@ -100,23 +99,23 @@ export default function CartPage() {
         <div className="flex flex-col lg:flex-row gap-8">
           {/* ── Left: Cart Items ── */}
           <div className="flex-1 space-y-3">
-            {/* Back to meals */}
+            {/* Back to courses */}
             <Button
               asChild
               variant="ghost"
               size="sm"
               className="gap-2 text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-50 -ml-2 mb-2"
             >
-              <Link href="/meals">
+              <Link href="/courses">
                 <ArrowLeft className="w-4 h-4" />
-                Continue Shopping
+                Continue Browsing
               </Link>
             </Button>
 
             {/* Cart Items List */}
             {items.map((item) => (
               <CartItem
-                key={item.mealId}
+                key={item.courseId}
                 item={item}
                 onUpdateQuantity={updateQuantity}
                 onRemove={removeFromCart}
@@ -135,19 +134,10 @@ export default function CartPage() {
               <div className="space-y-3 mb-5">
                 <div className="flex justify-between text-sm">
                   <span className="text-zinc-500 dark:text-zinc-400">
-                    Subtotal ({items.length} items)
+                    Price ({items.length} items)
                   </span>
                   <span className="font-medium text-zinc-900 dark:text-zinc-50">
-                    ৳{subtotal}
-                  </span>
-                </div>
-
-                <div className="flex justify-between text-sm">
-                  <span className="text-zinc-500 dark:text-zinc-400">
-                    Delivery Fee
-                  </span>
-                  <span className="font-medium text-zinc-900 dark:text-zinc-50">
-                    ৳{DELIVERY_FEE}
+                    ৳{total}
                   </span>
                 </div>
 
@@ -175,10 +165,7 @@ export default function CartPage() {
                 </Link>
               </Button>
 
-              {/* Small note */}
-              <p className="text-xs text-zinc-400 text-center mt-3">
-                Delivery fee is fixed at ৳{DELIVERY_FEE}
-              </p>
+
             </div>
           </div>
         </div>

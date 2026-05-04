@@ -14,35 +14,30 @@ import { Category } from "@/types";
 import { SlidersHorizontal, X } from "lucide-react";
 import { useEffect, useState } from "react";
 
-// type Category = {
-//   id: string;
-//   name: string;
-// };
-
 export type FilterState = {
   search: string;
   categoryId: string;
-  dietary: string[];
+  difficulty: string;   // was: dietary (multi) — now single select
   minPrice: string;
   maxPrice: string;
 };
 
-const DIETARY_OPTIONS = [
+const DIFFICULTY_OPTIONS = [
   {
-    value: "VEGAN",
-    label: "Vegan",
+    value: "BEGINNER",
+    label: "Beginner",
     color:
       "bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-300 border-green-200 dark:border-green-800",
   },
   {
-    value: "VEGETARIAN",
-    label: "Vegetarian",
+    value: "INTERMEDIATE",
+    label: "Intermediate",
     color:
-      "bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800",
+      "bg-yellow-100 text-yellow-700 dark:bg-yellow-950 dark:text-yellow-300 border-yellow-200 dark:border-yellow-800",
   },
   {
-    value: "NON_VEG",
-    label: "Non-Veg",
+    value: "ADVANCED",
+    label: "Advanced",
     color:
       "bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300 border-red-200 dark:border-red-800",
   },
@@ -51,20 +46,17 @@ const DIETARY_OPTIONS = [
 const DEFAULT_FILTERS: FilterState = {
   search: "",
   categoryId: "",
-  dietary: [],
+  difficulty: "",
   minPrice: "",
   maxPrice: "",
 };
 
-interface MealFiltersProps {
+interface CourseFiltersProps {
   onFilterChange: (filters: FilterState) => void;
   initialFilters?: Partial<FilterState>;
 }
 
-export function MealFilters({
-  onFilterChange,
-  initialFilters,
-}: MealFiltersProps) {
+export function CourseFilters({ onFilterChange, initialFilters }: CourseFiltersProps) {
   const [filters, setFilters] = useState<FilterState>({
     ...DEFAULT_FILTERS,
     ...initialFilters,
@@ -72,57 +64,49 @@ export function MealFilters({
   const [categories, setCategories] = useState<Category[]>([]);
   const [searchInput, setSearchInput] = useState(initialFilters?.search || "");
 
-  // Fetch categories for dropdown
   useEffect(() => {
     const fetchCategories = async () => {
       try {
         const data = await api.get("/categories");
         setCategories(data.data || data);
       } catch {
-        // console.error("Failed to fetch categories");
+        // silently fail
       }
     };
     fetchCategories();
   }, []);
 
-  // Update filter and notify parent
-  const handleFilterChange = (
-    key: keyof FilterState,
-    value: string | string[],
-  ) => {
+  const handleFilterChange = (key: keyof FilterState, value: string) => {
     const updated = { ...filters, [key]: value };
     setFilters(updated);
     onFilterChange(updated);
   };
-  //  Debounce search input 500ms
+
+  // Debounce search 500ms
   useEffect(() => {
     const timer = setTimeout(() => {
       handleFilterChange("search", searchInput);
     }, 500);
     return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchInput]);
 
-  //  Toggle dietary badge (multi-select)
-  const toggleDietary = (value: string) => {
-    const current = filters.dietary;
-    const updated = current.includes(value)
-      ? current.filter((d) => d !== value) // remove if already selected
-      : [...current, value]; // add if not selected
-    handleFilterChange("dietary", updated);
+  // Toggle difficulty (click again to deselect)
+  const toggleDifficulty = (value: string) => {
+    const next = filters.difficulty === value ? "" : value;
+    handleFilterChange("difficulty", next);
   };
 
-  //  Clear all filters
   const clearFilters = () => {
     setFilters(DEFAULT_FILTERS);
     setSearchInput("");
     onFilterChange(DEFAULT_FILTERS);
   };
 
-  // Check if any filter is active
   const hasActiveFilters =
     filters.search ||
     filters.categoryId ||
-    filters.dietary.length > 0 ||
+    filters.difficulty ||
     filters.minPrice ||
     filters.maxPrice;
 
@@ -153,7 +137,7 @@ export function MealFilters({
           Search
         </label>
         <Input
-          placeholder="Search meals..."
+          placeholder="Search courses..."
           value={searchInput}
           onChange={(e) => setSearchInput(e.target.value)}
           className="rounded-xl border-zinc-200 dark:border-zinc-700"
@@ -185,18 +169,18 @@ export function MealFilters({
         </Select>
       </div>
 
-      {/* Dietary - Multi select badges */}
+      {/* Difficulty — single select badges */}
       <div className="space-y-1.5">
         <label className="text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wide">
-          Dietary
+          Difficulty
         </label>
         <div className="flex flex-wrap gap-2">
-          {DIETARY_OPTIONS.map((option) => {
-            const isSelected = filters.dietary.includes(option.value);
+          {DIFFICULTY_OPTIONS.map((option) => {
+            const isSelected = filters.difficulty === option.value;
             return (
               <button
                 key={option.value}
-                onClick={() => toggleDietary(option.value)}
+                onClick={() => toggleDifficulty(option.value)}
                 className={`text-xs font-medium px-3 py-1.5 rounded-full border transition-all duration-200
                   ${
                     isSelected

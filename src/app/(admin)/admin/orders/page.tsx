@@ -12,38 +12,16 @@ import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { api } from "@/lib/api";
 import { useSession } from "@/lib/auth-client";
+import { Order, EnrollmentItem as OrderItem } from "@/types";
 
-type OrderItem = {
-  id: string;
-  quantity: number;
-  price: number;
-  meal: {
-    id: string;
-    name: string;
-  };
-};
 
-type Order = {
-  id: string;
-  orderNumber: string;
-  status: "PLACED" | "PREPARING" | "READY" | "DELIVERED" | "CANCELLED";
-  total: number;
-  deliveryAddress: string;
-  createdAt: string;
-  customer: {
-    id: string;
-    name: string;
-    email: string;
-  };
-  items: OrderItem[];
-};
 
 type StatusFilter =
   | "ALL"
-  | "PLACED"
-  | "PREPARING"
-  | "READY"
-  | "DELIVERED"
+  | "PENDING"
+  | "ACTIVE"
+  | "COMPLETED"
+  | "EXPIRED"
   | "CANCELLED";
 
 export default function AdminOrdersPage() {
@@ -140,10 +118,10 @@ export default function AdminOrdersPage() {
 
   const statusCounts = {
     ALL: orders.length,
-    PLACED: orders.filter((o) => o.status === "PLACED").length,
-    PREPARING: orders.filter((o) => o.status === "PREPARING").length,
-    READY: orders.filter((o) => o.status === "READY").length,
-    DELIVERED: orders.filter((o) => o.status === "DELIVERED").length,
+    PENDING: orders.filter((o) => o.status === "PENDING").length,
+    ACTIVE: orders.filter((o) => o.status === "ACTIVE").length,
+    COMPLETED: orders.filter((o) => o.status === "COMPLETED").length,
+    EXPIRED: orders.filter((o) => o.status === "EXPIRED").length,
     CANCELLED: orders.filter((o) => o.status === "CANCELLED").length,
   };
 
@@ -180,10 +158,10 @@ export default function AdminOrdersPage() {
           {(
             [
               "ALL",
-              "PLACED",
-              "PREPARING",
-              "READY",
-              "DELIVERED",
+              "PENDING",
+              "ACTIVE",
+              "COMPLETED",
+              "EXPIRED",
               "CANCELLED",
             ] as StatusFilter[]
           ).map((status) => (

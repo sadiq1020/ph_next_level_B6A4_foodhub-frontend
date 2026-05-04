@@ -8,7 +8,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-type OrderStatus = "PLACED" | "PREPARING" | "READY" | "DELIVERED" | "CANCELLED";
+type OrderStatus = "PENDING" | "ACTIVE" | "COMPLETED" | "EXPIRED" | "CANCELLED";
 
 interface OrderStatusSelectProps {
   currentStatus: OrderStatus;
@@ -22,7 +22,9 @@ export function OrderStatusSelect({
   onStatusChange,
 }: OrderStatusSelectProps) {
   const isDisabled =
-    currentStatus === "DELIVERED" || currentStatus === "CANCELLED";
+    currentStatus === "COMPLETED" || 
+    currentStatus === "CANCELLED" || 
+    currentStatus === "EXPIRED";
 
   return (
     <Select
@@ -34,10 +36,11 @@ export function OrderStatusSelect({
         <SelectValue />
       </SelectTrigger>
       <SelectContent>
-        <SelectItem value="PLACED">Placed</SelectItem>
-        <SelectItem value="PREPARING">Preparing</SelectItem>
-        <SelectItem value="READY">Ready</SelectItem>
-        <SelectItem value="DELIVERED">Delivered</SelectItem>
+        <SelectItem value="PENDING">Pending</SelectItem>
+        <SelectItem value="ACTIVE">Active</SelectItem>
+        <SelectItem value="COMPLETED">Completed</SelectItem>
+        <SelectItem value="EXPIRED">Expired</SelectItem>
+        <SelectItem value="CANCELLED">Cancelled</SelectItem>
       </SelectContent>
     </Select>
   );

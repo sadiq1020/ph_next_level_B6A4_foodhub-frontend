@@ -10,7 +10,7 @@ export default function AuthLayout({
     <div className="min-h-screen flex flex-col bg-[#0b0c10] text-gray-100">
       <nav className="flex items-center justify-between px-6 md:px-12 py-6">
         <Link href="/" className="text-2xl font-black text-orange-500">
-          FOOD<span className="text-white">HUB</span>
+          KITCHEN<span className="text-white">CLASS</span>
         </Link>
         <Link
           href="/"
@@ -24,7 +24,7 @@ export default function AuthLayout({
       <main className="flex-grow flex flex-col items-center justify-start pt-12 px-6">
         <div className="text-center mb-8">
           <h1 className="text-3xl md:text-5xl font-extrabold text-white uppercase tracking-tighter mb-3">
-            Welcome to <span className="text-orange-500">FOOD</span>HUB
+            Welcome to <span className="text-orange-500">KITCHEN</span>CLASS
           </h1>
           <p className="text-gray-400 font-medium">
             Please enter your details below to continue

@@ -1,49 +1,16 @@
-import { AddToCart } from "@/components/meals/AddToCart";
+import { AddToCart } from "@/components/courses/AddToCart";
 import { Button } from "@/components/ui/button";
-import { Meal } from "@/types";
-import { ArrowLeft, Flame, Store } from "lucide-react";
+import { Course } from "@/types";
+import { ArrowLeft, Clock, GraduationCap, LayoutList, Store } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-// // ── Types ────────────────────────────────────────────
-// type Review = {
-//   id: string;
-//   rating: number;
-//   comment?: string | null;
-//   customer: {
-//     name: string;
-//   };
-//   createdAt: string;
-// };
-
-// type Meal = {
-//   id: string;
-//   name: string;
-//   description?: string | null;
-//   price: number;
-//   image?: string | null;
-//   dietary?: string | null;
-//   spiceLevel?: string | null;
-//   isAvailable: boolean;
-//   averageRating?: number | null;
-//   provider: {
-//     id: string;
-//     businessName: string;
-//     address?: string | null;
-//   };
-//   category: {
-//     id: string;
-//     name: string;
-//   };
-//   reviews: Review[];
-// };
-
-// ── Fetch ────────────────────────────────────────────
-async function getMeal(id: string): Promise<Meal | null> {
+// ── Fetch ─────────────────────────────────────────────
+async function getCourse(id: string): Promise<Course | null> {
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/meals/${id}`, {
-      cache: "no-store", // ✅ Always fetch fresh — reviews must appear immediately after submission
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/courses/${id}`, {
+      cache: "no-store", // always fresh — reviews must appear immediately
     });
     if (!res.ok) return null;
     const data = await res.json();
@@ -54,22 +21,20 @@ async function getMeal(id: string): Promise<Meal | null> {
 }
 
 // ── Helpers ───────────────────────────────────────────
-const getDietaryStyle = (dietary: string) => {
-  if (dietary === "VEGAN")
+const getDifficultyStyle = (difficulty: string) => {
+  if (difficulty === "BEGINNER")
     return "bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-300";
-  if (dietary === "VEGETARIAN")
-    return "bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300";
-  if (dietary === "NON_VEG")
+  if (difficulty === "INTERMEDIATE")
+    return "bg-yellow-100 text-yellow-700 dark:bg-yellow-950 dark:text-yellow-300";
+  if (difficulty === "ADVANCED")
     return "bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300";
   return "bg-zinc-100 text-zinc-600";
 };
 
-const getSpiceStyle = (level: string) => {
-  if (level === "HOT" || level === "EXTRA_HOT")
-    return "bg-red-100 text-red-600 dark:bg-red-950 dark:text-red-300";
-  if (level === "MEDIUM")
-    return "bg-orange-100 text-orange-600 dark:bg-orange-950 dark:text-orange-300";
-  return "bg-yellow-100 text-yellow-600 dark:bg-yellow-950 dark:text-yellow-300";
+const formatDuration = (minutes: number) => {
+  const h = Math.floor(minutes / 60);
+  const m = minutes % 60;
+  return h > 0 ? `${h}h ${m > 0 ? `${m}m` : ""}`.trim() : `${m}m`;
 };
 
 // ── Star renderer ─────────────────────────────────────
@@ -94,102 +59,103 @@ function StarRating({ rating }: { rating: number }) {
 }
 
 // ── Page ──────────────────────────────────────────────
-export default async function MealDetailPage({
+export default async function CourseDetailPage({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const meal = await getMeal(id);
+  const course = await getCourse(id);
 
-  //  404 if meal not found
-  if (!meal) {
-    notFound();
-  }
+  if (!course) notFound();
 
-  const reviews = meal.reviews || [];
+  const reviews = course.reviews || [];
 
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
       <div className="container mx-auto px-4 py-8 max-w-5xl">
+
         {/* Back Button */}
         <Button
           asChild
           variant="ghost"
           className="mb-6 gap-2 text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-50 -ml-2"
         >
-          <Link href="/meals">
+          <Link href="/courses">
             <ArrowLeft className="w-4 h-4" />
-            Back to Meals
+            Back to Courses
           </Link>
         </Button>
 
         {/* Main Content */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+
           {/* ── Left: Image ── */}
-          <div className="relative w-full aspect-square rounded-2xl overflow-hidden bg-zinc-100 dark:bg-zinc-800">
-            {meal.image ? (
+          <div className="relative w-full aspect-video rounded-2xl overflow-hidden bg-zinc-100 dark:bg-zinc-800">
+            {course.image ? (
               <Image
-                src={meal.image}
-                alt={meal.name}
+                src={course.image}
+                alt={course.name}
                 fill
                 sizes="(max-width: 1024px) 100vw, 50vw"
                 className="object-cover"
-                priority // LCP image, load eagerly
+                priority
               />
             ) : (
               <div className="w-full h-full flex items-center justify-center">
-                <span className="text-8xl">🍽️</span>
+                <span className="text-8xl">🎬</span>
               </div>
             )}
 
-            {/* Unavailable overlay */}
-            {!meal.isAvailable && (
+            {!course.isAvailable && (
               <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
                 <span className="text-white font-semibold bg-red-500 px-4 py-2 rounded-full">
-                  Out of Stock
+                  Currently Unavailable
                 </span>
               </div>
             )}
           </div>
 
-          {/* ─ Right: Details ─ */}
+          {/* ── Right: Details ── */}
           <div className="flex flex-col gap-5">
+
             {/* Category */}
             <p className="text-xs font-medium text-zinc-400 uppercase tracking-widest">
-              {meal.category.name}
+              {course.category.name}
             </p>
 
             {/* Name */}
             <h1 className="text-3xl font-bold text-zinc-900 dark:text-zinc-50 leading-tight">
-              {meal.name}
+              {course.name}
             </h1>
 
-            {/* Tags row */}
+            {/* Course meta row */}
             <div className="flex flex-wrap gap-2">
-              {meal.dietary && typeof meal.dietary === "string" && (
-                <span
-                  className={`text-xs font-medium px-3 py-1 rounded-full ${getDietaryStyle(meal.dietary)}`}
-                >
-                  {meal.dietary.replace("_", " ")}
+              {course.difficulty && (
+                <span className={`text-xs font-medium px-3 py-1 rounded-full ${getDifficultyStyle(course.difficulty)}`}>
+                  {course.difficulty}
                 </span>
               )}
-              {meal.spiceLevel && typeof meal.spiceLevel === "string" && (
-                <span
-                  className={`text-xs font-medium px-3 py-1 rounded-full flex items-center gap-1 ${getSpiceStyle(meal.spiceLevel)}`}
-                >
-                  <Flame className="w-3 h-3" />
-                  {meal.spiceLevel.replace("_", " ")}
+              {course.duration && (
+                <span className="text-xs font-medium px-3 py-1 rounded-full bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300 flex items-center gap-1">
+                  <Clock className="w-3 h-3" />
+                  {formatDuration(course.duration)}
+                </span>
+              )}
+              {course.lessonsCount && (
+                <span className="text-xs font-medium px-3 py-1 rounded-full bg-purple-100 text-purple-700 dark:bg-purple-950 dark:text-purple-300 flex items-center gap-1">
+                  <LayoutList className="w-3 h-3" />
+                  {course.lessonsCount} lessons
                 </span>
               )}
             </div>
 
             {/* Rating */}
-            {/* {meal.averageRating ? (
+            {course.averageRating ? (
               <div className="flex items-center gap-2">
-                <StarRating rating={meal.averageRating} />
+                <StarRating rating={course.averageRating} />
                 <span className="text-sm font-semibold text-zinc-700 dark:text-zinc-300">
-                  {meal.averageRating.toFixed(1)}
+                  {course.averageRating.toFixed(1)}
                 </span>
                 <span className="text-sm text-zinc-400">
                   ({reviews.length} review{reviews.length !== 1 ? "s" : ""})
@@ -197,18 +163,18 @@ export default async function MealDetailPage({
               </div>
             ) : (
               <p className="text-sm text-zinc-400">No reviews yet</p>
-            )} */}
+            )}
 
             {/* Description */}
-            {meal.description && (
+            {course.description && (
               <p className="text-zinc-600 dark:text-zinc-400 leading-relaxed text-sm">
-                {meal.description}
+                {course.description}
               </p>
             )}
 
-            {/* Provider */}
+            {/* Instructor */}
             <Link
-              href={`/provider-profile/${meal.provider.id}`}
+              href={`/instructor-profiles/${course.instructor.id}`}
               className="flex items-center gap-3 p-3 rounded-xl border border-zinc-200 dark:border-zinc-800 hover:border-orange-300 dark:hover:border-orange-700 transition-colors group"
             >
               <div className="w-10 h-10 rounded-full bg-orange-100 dark:bg-orange-950/50 flex items-center justify-center shrink-0">
@@ -216,11 +182,11 @@ export default async function MealDetailPage({
               </div>
               <div className="flex-1 min-w-0">
                 <p className="font-medium text-zinc-900 dark:text-zinc-50 group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors text-sm">
-                  {meal.provider.businessName}
+                  {course.instructor.businessName}
                 </p>
-                {meal.provider.address && (
+                {course.instructor.address && (
                   <p className="text-xs text-zinc-400 truncate">
-                    {meal.provider.address}
+                    {course.instructor.address}
                   </p>
                 )}
               </div>
@@ -230,19 +196,25 @@ export default async function MealDetailPage({
             {/* Price */}
             <div className="flex items-baseline gap-2">
               <span className="text-4xl font-bold text-orange-600 dark:text-orange-400">
-                ৳{meal.price}
+                ৳{course.price}
               </span>
-              <span className="text-zinc-400 text-sm">per item</span>
+              <span className="text-zinc-400 text-sm">enrollment fee</span>
             </div>
 
-            {/*  Add to Cart - Client Component */}
+            {/* What you get */}
+            <div className="flex items-center gap-2 text-sm text-green-700 dark:text-green-300 bg-green-50 dark:bg-green-950/30 px-4 py-2.5 rounded-xl border border-green-200 dark:border-green-800">
+              <GraduationCap className="w-4 h-4 shrink-0" />
+              <span>1 year access after enrollment</span>
+            </div>
+
+            {/* Add to Cart — Client Component */}
             <AddToCart
-              meal={{
-                id: meal.id,
-                name: meal.name,
-                price: meal.price,
-                isAvailable: meal.isAvailable,
-                image: meal.image,
+              course={{
+                id: course.id,
+                name: course.name,
+                price: Number(course.price),
+                isAvailable: course.isAvailable,
+                image: course.image,
               }}
             />
           </div>
@@ -260,12 +232,11 @@ export default async function MealDetailPage({
           </h2>
 
           {reviews.length === 0 ? (
-            // Empty state
             <div className="text-center py-12 bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800">
               <p className="text-4xl mb-3">💬</p>
               <p className="text-zinc-500 font-medium">No reviews yet</p>
               <p className="text-zinc-400 text-sm mt-1">
-                Be the first to review this meal!
+                Be the first to review this course!
               </p>
             </div>
           ) : (
@@ -277,7 +248,6 @@ export default async function MealDetailPage({
                 >
                   <div className="flex items-start justify-between gap-4 mb-3">
                     <div className="flex items-center gap-3">
-                      {/* Avatar initials */}
                       <div className="w-9 h-9 rounded-full bg-orange-100 dark:bg-orange-950/50 flex items-center justify-center shrink-0">
                         <span className="text-xs font-bold text-orange-600 dark:text-orange-400">
                           {review.customer.name

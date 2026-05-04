@@ -1,19 +1,11 @@
 "use client";
 
-import { ChevronRight, ShoppingBag } from "lucide-react";
+import { ChevronRight, GraduationCap } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { OrderStatusBadge } from "./OrderStatusBadge";
+import { Order } from "@/types";
 
-type Order = {
-  id: string;
-  orderNumber: string;
-  status: "PLACED" | "PREPARING" | "READY" | "DELIVERED" | "CANCELLED";
-  total: number;
-  createdAt: string;
-  _count?: {
-    orderItems: number;
-  };
-};
+
 
 interface OrderCardProps {
   order: Order;
@@ -40,9 +32,9 @@ export function OrderCard({ order }: OrderCardProps) {
       <div className="flex items-start justify-between gap-4 mb-4">
         <div className="flex-1">
           <div className="flex items-center gap-2 mb-1">
-            <ShoppingBag className="w-4 h-4 text-orange-500" />
+            <GraduationCap className="w-4 h-4 text-orange-500" />
             <p className="font-semibold text-zinc-900 dark:text-zinc-50">
-              Order #{order.orderNumber}
+              Enrollment #{order.orderNumber}
             </p>
           </div>
           <p className="text-sm text-zinc-500 dark:text-zinc-400">
@@ -63,13 +55,13 @@ export function OrderCard({ order }: OrderCardProps) {
               ৳{order.total}
             </p>
           </div>
-          {order._count && (
+          {order.items && (
             <div>
               <p className="text-xs text-zinc-400 uppercase tracking-wide">
-                Items
+                Courses
               </p>
               <p className="text-sm font-medium text-zinc-900 dark:text-zinc-50">
-                {order._count.orderItems}
+                {order.items.length}
               </p>
             </div>
           )}

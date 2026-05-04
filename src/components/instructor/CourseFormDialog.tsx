@@ -31,10 +31,10 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { api } from "@/lib/api";
-import type { Category, Meal } from "@/types";
+import type { Category, Course } from "@/types";
 
 // ── Zod Schema ─────────────────────────────────────────
-const mealSchema = z.object({
+const courseSchema = z.object({
   name: z.string().min(3, "Name must be at least 3 characters"),
   description: z.string().optional(),
   price: z.number().min(1, "Price must be at least 1"),
@@ -61,24 +61,24 @@ const mealSchema = z.object({
           "Image must be from images.unsplash.com or your CloudFront domain",
       },
     ),
-  dietary: z.string().optional(),
+  tags: z.string().optional(),
 });
 
-type MealFormData = z.infer<typeof mealSchema>;
+type CourseFormData = z.infer<typeof courseSchema>;
 
-interface MealFormDialogProps {
+interface CourseFormDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  meal: Meal | null; // null = add mode, Meal = edit mode
-  onSuccess: (meal: Meal) => void;
+  course: Course | null; // null = add mode, Course = edit mode
+  onSuccess: (course: Course) => void;
 }
 
-export function MealFormDialog({
+export function CourseFormDialog({
   open,
   onOpenChange,
-  meal,
+  course,
   onSuccess,
-}: MealFormDialogProps) {
+}: CourseFormDialogProps) {
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoadingCategories, setIsLoadingCategories] = useState(false);
 
@@ -89,20 +89,20 @@ export function MealFormDialog({
     reset,
     setValue,
     watch,
-  } = useForm<MealFormData>({
-    resolver: zodResolver(mealSchema),
+  } = useForm<CourseFormData>({
+    resolver: zodResolver(courseSchema),
     defaultValues: {
       name: "",
       description: "",
       price: 0,
       categoryId: "",
       image: "",
-      dietary: "",
+      tags: "",
     },
   });
 
   const categoryId = watch("categoryId");
-  const dietary = watch("dietary");
+  const tags = watch("tags");
 
   //  Fetch categories
   useEffect(() => {
@@ -125,16 +125,16 @@ export function MealFormDialog({
 
   //  Pre-fill form when editing
   useEffect(() => {
-    if (meal) {
+    if (course) {
       reset({
-        name: meal.name,
-        description: meal.description || "",
-        price: meal.price,
-        categoryId: meal.category.id,
-        image: meal.image || "",
-        dietary: Array.isArray(meal.dietary)
-          ? meal.dietary[0] || ""
-          : meal.dietary || "",
+        name: course.name,
+        description: course.description || "",
+        price: Number(course.price),
+        categoryId: course.category.id,
+        image: course.image || "",
+        tags: Array.isArray(course.tags)
+          ? course.tags[0] || ""
+          : (course as any).dietary?.[0] || "",
       });
     } else {
       reset({
@@ -143,26 +143,26 @@ export function MealFormDialog({
         price: 0,
         categoryId: "",
         image: "",
-        dietary: "",
+        tags: "",
       });
     }
-  }, [meal, reset]);
+  }, [course, reset]);
 
   //  Submit handler - updated
-  const onSubmit = async (data: MealFormData) => {
+  const onSubmit = async (data: CourseFormData) => {
     const toastId = toast.loading(
-      meal ? "Updating meal..." : "Creating meal...",
+      course ? "Updating course..." : "Creating course...",
     );
 
     try {
-      let providerId = meal?.provider?.id;
+      let instructorId = course?.instructor?.id;
 
-      if (!providerId) {
+      if (!instructorId) {
         try {
-          const profileResponse = await api.get("/provider/profile");
-          providerId = profileResponse.data?.id || profileResponse.id;
+          const profileResponse = await api.get("/instructor/profile");
+          instructorId = profileResponse.data?.id || profileResponse.id;
         } catch (error) {
-          toast.error("Failed to get provider profile. Please try again.", {
+          toast.error("Failed to get instructor profile. Please try again.", {
             id: toastId,
           });
           return;
@@ -171,32 +171,32 @@ export function MealFormDialog({
 
       const payload = {
         ...data,
-        providerId,
+        instructorId,
         price: Number(data.price),
         image: data.image || null,
-        dietary: data.dietary ? [data.dietary] : null,
+        tags: data.tags ? [data.tags] : null,
         description: data.description || null,
       };
 
-      let savedMeal;
-      if (meal) {
-        const response = await api.put(`/meals/${meal.id}`, payload);
-        savedMeal = response.data || response;
+      let savedCourse;
+      if (course) {
+        const response = await api.put(`/courses/${course.id}`, payload);
+        savedCourse = response.data || response;
       } else {
-        const response = await api.post("/meals", payload);
-        savedMeal = response.data || response;
+        const response = await api.post("/courses", payload);
+        savedCourse = response.data || response;
       }
 
       toast.success(
-        meal ? "Meal updated successfully!" : "Meal created successfully!",
+        course ? "Course updated successfully!" : "Course created successfully!",
         { id: toastId },
       );
 
-      onSuccess(savedMeal);
+      onSuccess(savedCourse);
       reset();
     } catch (error: unknown) {
       const message =
-        error instanceof Error ? error.message : "Failed to save meal";
+        error instanceof Error ? error.message : "Failed to save course";
       toast.error(message, { id: toastId });
     }
   };
@@ -205,11 +205,11 @@ export function MealFormDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{meal ? "Edit Meal" : "Add New Meal"}</DialogTitle>
+          <DialogTitle>{course ? "Edit Course" : "Add New Course"}</DialogTitle>
           <DialogDescription>
-            {meal
-              ? "Update your meal details"
-              : "Fill in the details to add a new meal"}
+            {course
+              ? "Update your course details"
+              : "Fill in the details to add a new course"}
           </DialogDescription>
         </DialogHeader>
 
@@ -217,10 +217,10 @@ export function MealFormDialog({
           <FieldGroup>
             {/* Name */}
             <Field data-invalid={!!errors.name}>
-              <FieldLabel htmlFor="name">Meal Name *</FieldLabel>
+              <FieldLabel htmlFor="name">Course Name *</FieldLabel>
               <Input
                 id="name"
-                placeholder="e.g., Chicken Biryani"
+                placeholder="e.g., Advanced React Patterns"
                 {...register("name")}
               />
               {errors.name && <FieldError errors={[errors.name]} />}
@@ -231,7 +231,7 @@ export function MealFormDialog({
               <FieldLabel htmlFor="description">Description</FieldLabel>
               <Textarea
                 id="description"
-                placeholder="Describe your meal..."
+                placeholder="Describe your course..."
                 rows={3}
                 {...register("description")}
               />
@@ -290,20 +290,20 @@ export function MealFormDialog({
               {errors.image && <FieldError errors={[errors.image]} />}
             </Field>
 
-            {/* Dietary */}
+            {/* Tags */}
             <Field>
-              <FieldLabel>Dietary Type</FieldLabel>
+              <FieldLabel>Difficulty Level</FieldLabel>
               <Select
-                value={dietary}
-                onValueChange={(value) => setValue("dietary", value)}
+                value={tags}
+                onValueChange={(value) => setValue("tags", value)}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select dietary type (optional)" />
+                  <SelectValue placeholder="Select difficulty (optional)" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="VEGAN">Vegan</SelectItem>
-                  <SelectItem value="VEGETARIAN">Vegetarian</SelectItem>
-                  <SelectItem value="NON_VEG">Non-Veg</SelectItem>
+                  <SelectItem value="BEGINNER">Beginner</SelectItem>
+                  <SelectItem value="INTERMEDIATE">Intermediate</SelectItem>
+                  <SelectItem value="ADVANCED">Advanced</SelectItem>
                 </SelectContent>
               </Select>
             </Field>
@@ -324,7 +324,7 @@ export function MealFormDialog({
               disabled={isSubmitting}
               className="rounded-full bg-gradient-to-r from-orange-500 to-rose-500 hover:from-orange-600 hover:to-rose-600 border-0 text-white px-8"
             >
-              {isSubmitting ? "Saving..." : meal ? "Update Meal" : "Add Meal"}
+              {isSubmitting ? "Saving..." : course ? "Update Course" : "Add Course"}
             </Button>
           </div>
         </form>

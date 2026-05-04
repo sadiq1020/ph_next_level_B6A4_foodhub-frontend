@@ -14,8 +14,7 @@ export function CategoriesSection() {
       try {
         const data = await api.get("/categories");
         setCategories(data.data || data);
-      } catch (error) {
-        // console.error("Failed to fetch categories:", error);
+      } catch {
         setCategories([]);
       } finally {
         setIsLoading(false);
@@ -31,10 +30,10 @@ export function CategoriesSection() {
         <div className="container mx-auto px-4">
           <div className="text-center mb-10">
             <h2 className="text-3xl md:text-4xl font-bold text-zinc-900 dark:text-zinc-50 mb-3">
-              Browse by Category
+              Browse by Skill Type
             </h2>
             <p className="text-zinc-500 dark:text-zinc-400 max-w-md mx-auto">
-              Find exactly what you&apos;re craving from our wide selection
+              Find courses by the culinary skill you want to master
             </p>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -55,16 +54,16 @@ export function CategoriesSection() {
       <div className="container mx-auto px-4">
         <div className="text-center mb-10">
           <h2 className="text-3xl md:text-4xl font-bold text-zinc-900 dark:text-zinc-50 mb-3">
-            Browse by Category
+            Browse by Skill Type
           </h2>
           <p className="text-zinc-500 dark:text-zinc-400 max-w-md mx-auto">
-            Find exactly what you&apos;re craving from our wide selection
+            Find courses by the culinary skill you want to master
           </p>
         </div>
 
         {categories.length === 0 ? (
           <div className="text-center py-12 text-zinc-400">
-            <p className="text-4xl mb-3">🍽️</p>
+            <p className="text-4xl mb-3">🎬</p>
             <p>No categories available yet.</p>
           </div>
         ) : (

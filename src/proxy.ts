@@ -33,8 +33,8 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
-  // Customer trying to access provider routes
-  if (role === "CUSTOMER" && pathName.startsWith("/provider")) {
+  // Customer trying to access instructor routes
+  if (role === "CUSTOMER" && pathName.startsWith("/instructor")) {
     return NextResponse.redirect(new URL("/", request.url));
   }
 
@@ -43,9 +43,9 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(new URL("/", request.url));
   }
 
-  // Provider trying to access admin routes
-  if (role === "PROVIDER" && pathName.startsWith("/admin")) {
-    return NextResponse.redirect(new URL("/provider/dashboard", request.url));
+  // Instructor trying to access admin routes
+  if (role === "INSTRUCTOR" && pathName.startsWith("/admin")) {
+    return NextResponse.redirect(new URL("/instructor/dashboard", request.url));
   }
 
   return NextResponse.next();
@@ -57,7 +57,7 @@ export const config = {
     "/orders/:path*",
     "/checkout/:path*",
     "/profile/:path*",
-    "/provider/:path*",
+    "/instructor/:path*",
     "/admin/:path*",
   ],
 };

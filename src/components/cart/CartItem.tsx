@@ -6,8 +6,8 @@ import Image from "next/image";
 
 interface CartItemProps {
   item: CartItemType;
-  onUpdateQuantity: (mealId: string, quantity: number) => void;
-  onRemove: (mealId: string) => void;
+  onUpdateQuantity: (courseId: string, quantity: number) => void;
+  onRemove: (courseId: string) => void;
 }
 
 export function CartItem({ item, onUpdateQuantity, onRemove }: CartItemProps) {
@@ -43,7 +43,7 @@ export function CartItem({ item, onUpdateQuantity, onRemove }: CartItemProps) {
       {/* Quantity Controls */}
       <div className="flex items-center gap-2 bg-zinc-100 dark:bg-zinc-800 rounded-full px-2 py-1 shrink-0">
         <button
-          onClick={() => onUpdateQuantity(item.mealId, item.quantity - 1)}
+          onClick={() => onUpdateQuantity(item.courseId, item.quantity - 1)}
           disabled={item.quantity === 1}
           className="w-7 h-7 rounded-full flex items-center justify-center text-zinc-600 dark:text-zinc-300 hover:bg-white dark:hover:bg-zinc-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
         >
@@ -53,7 +53,7 @@ export function CartItem({ item, onUpdateQuantity, onRemove }: CartItemProps) {
           {item.quantity}
         </span>
         <button
-          onClick={() => onUpdateQuantity(item.mealId, item.quantity + 1)}
+          onClick={() => onUpdateQuantity(item.courseId, item.quantity + 1)}
           disabled={item.quantity === 99}
           className="w-7 h-7 rounded-full flex items-center justify-center text-zinc-600 dark:text-zinc-300 hover:bg-white dark:hover:bg-zinc-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
         >
@@ -70,7 +70,7 @@ export function CartItem({ item, onUpdateQuantity, onRemove }: CartItemProps) {
 
       {/* Remove Button */}
       <button
-        onClick={() => onRemove(item.mealId)}
+        onClick={() => onRemove(item.courseId)}
         className="w-8 h-8 rounded-full flex items-center justify-center text-zinc-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors shrink-0"
       >
         <Trash2 className="w-4 h-4" />

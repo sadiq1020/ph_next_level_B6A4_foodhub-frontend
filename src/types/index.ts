@@ -1,17 +1,22 @@
-// ── Meal ──────────────────────────────────────────────
-// Used in: MealCard, FeaturedMeals, MealsPage, MealDetail
-export type Meal = {
+// ── Course ─────────────────────────────────────────────
+// Used in: CourseCard, FeaturedCourses, CoursesPage, CourseDetail
+export type Course = {
   id: string;
   name: string;
   description?: string | null;
   price: number;
   image?: string | null;
-  dietary?: string | null;
-  spiceLevel?: string | null;
   isAvailable?: boolean;
+  // ── KitchenClass course fields ──────────────────────
+  videoUrl?: string | null;
+  duration?: number | null;       // total minutes
+  difficulty?: string | null;     // BEGINNER | INTERMEDIATE | ADVANCED
+  lessonsCount?: number | null;
+  tags?: string[];
+  // ───────────────────────────────────────────────────
   averageRating?: number | null;
   totalReviews?: number | null;
-  provider: {
+  instructor: {
     id: string;
     businessName: string;
     address?: string | null;
@@ -24,18 +29,18 @@ export type Meal = {
 };
 
 // ── Category ───────────────────────────────────────────
-// Used in: CategoriesSection, CategoryCard, MealFilters
+// Used in: CategoriesSection, CategoryCard, CourseFilters
 export type Category = {
   id: string;
   name: string;
   image?: string | null;
   _count?: {
-    meals: number;
+    courses: number;  // was: meals
   };
 };
 
 // ── Review ─────────────────────────────────────────────
-// Used in: MealDetail
+// Used in: CourseDetail
 export type Review = {
   id: string;
   rating: number;
@@ -49,44 +54,63 @@ export type Review = {
 // ── Cart ───────────────────────────────────────────────
 // Used in: CartContext, AddToCart, CartPage
 export type CartItem = {
-  mealId: string;
+  courseId: string;   // was: mealId
   name: string;
   price: number;
   quantity: number;
   image?: string | null;
 };
 
-// ── Orders ───────────────────────────────────────────────
+// ── Orders / Enrollments ──────────────────────────────
 export type Order = {
   id: string;
   orderNumber: string;
-  status: "PLACED" | "PREPARING" | "READY" | "DELIVERED" | "CANCELLED";
+  status: "PENDING" | "ACTIVE" | "COMPLETED" | "EXPIRED" | "CANCELLED";
   total: number;
   subtotal: number;
-  deliveryFee: number;
-  deliveryAddress: string;
-  phone: string;
+  // deliveryFee removed — digital product
+  // deliveryAddress removed
+  // phone removed
+  accessUntil?: string | null;  // enrollment expiry date
   notes?: string | null;
   createdAt: string;
   updatedAt: string;
-  _count?: {
-    orderItems: number;
+  customer?: {
+    id: string;
+    name: string;
+    email: string;
+    image?: string | null;
   };
-  items?: OrderItem[];
+  items?: EnrollmentItem[];
 };
 
-export type OrderItem = {
+export type EnrollmentItem = {
   id: string;
   quantity: number;
   price: number;
-  meal: {
+  course: {             // was: meal
     id: string;
     name: string;
     image?: string | null;
+    duration?: number | null;
+    difficulty?: string | null;
   };
 };
 
-// ── Users ───────────────────────────────────────────────
+// ── Instructor Profile ────────────────────────────────
+export type InstructorProfile = {
+  id: string;
+  businessName: string;
+  description?: string | null;
+  address: string;
+  logo?: string | null;
+  status: "PENDING" | "APPROVED" | "REJECTED";
+  _count?: {
+    courses: number;
+  };
+};
+
+// ── Users ─────────────────────────────────────────────
 export type User = {
   id: string;
   name: string;

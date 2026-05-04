@@ -1,6 +1,6 @@
 "use client";
 
-import { MealFormDialog } from "@/components/provider/MealFormDialog";
+import { CourseFormDialog } from "@/components/instructor/CourseFormDialog";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -16,25 +16,25 @@ import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { api } from "@/lib/api";
 import { useSession } from "@/lib/auth-client";
-import type { Meal } from "@/types";
+import type { Course } from "@/types";
 import { Pencil, Plus, Trash2 } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
-export default function ProviderMenuPage() {
+export default function InstructorCoursesPage() {
   const router = useRouter();
   const { data: session, isPending } = useSession();
-  const [meals, setMeals] = useState<Meal[]>([]);
+  const [courses, setCourses] = useState<Course[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [editingMeal, setEditingMeal] = useState<Meal | null>(null);
+  const [editingCourse, setEditingCourse] = useState<Course | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [mealToDelete, setMealToDelete] = useState<string | null>(null);
+  const [courseToDelete, setCourseToDelete] = useState<string | null>(null);
   const hasFetched = useRef(false);
 
-  //  Protected route - provider only
+  //  Protected route - instructor only
   useEffect(() => {
     if (!isPending && !session?.user) {
       router.push("/login");
@@ -42,32 +42,32 @@ export default function ProviderMenuPage() {
 
     if (!isPending && session?.user) {
       const userRole = (session.user as { role?: string }).role;
-      if (userRole !== "PROVIDER") {
+      if (userRole !== "INSTRUCTOR") {
         router.push("/");
       }
     }
   }, [session, isPending, router]);
 
-  //  Fetch provider's meals — only once per mount
+  //  Fetch instructor's courses — only once per mount
   useEffect(() => {
     if (!session?.user) return;
     if (hasFetched.current) return;
 
-    const fetchMeals = async () => {
+    const fetchCourses = async () => {
       try {
         hasFetched.current = true;
         setIsLoading(true);
-        const data = await api.get("/meals/my-meals");
-        setMeals(data.data || data);
+        const data = await api.get("/courses/my-courses");
+        setCourses(data.data || data);
       } catch (error) {
-        // console.error("Failed to fetch meals:", error);
-        toast.error("Failed to load meals");
+        // console.error("Failed to fetch courses:", error);
+        toast.error("Failed to load courses");
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchMeals();
+    fetchCourses();
   }, [session?.user?.id]); // ✅ Stable string, not the whole session object
 
   if (isPending) {
@@ -80,50 +80,50 @@ export default function ProviderMenuPage() {
 
   if (!session?.user) return null;
 
-  //  Delete meal handler
+  //  Delete course handler
   const handleDelete = async () => {
-    if (!mealToDelete) return;
+    if (!courseToDelete) return;
 
-    const toastId = toast.loading("Deleting meal...");
+    const toastId = toast.loading("Deleting course...");
 
     try {
-      await api.delete(`/meals/${mealToDelete}`);
-      toast.success("Meal deleted successfully", { id: toastId });
+      await api.delete(`/courses/${courseToDelete}`);
+      toast.success("Course deleted successfully", { id: toastId });
 
       // Remove from list
-      setMeals(meals.filter((m) => m.id !== mealToDelete));
+      setCourses(courses.filter((m) => m.id !== courseToDelete));
       setDeleteDialogOpen(false);
-      setMealToDelete(null);
+      setCourseToDelete(null);
     } catch (error: unknown) {
       const message =
-        error instanceof Error ? error.message : "Failed to delete meal";
+        error instanceof Error ? error.message : "Failed to delete course";
       toast.error(message, { id: toastId });
     }
   };
 
   //  Open edit dialog
-  const handleEdit = (meal: Meal) => {
-    setEditingMeal(meal);
+  const handleEdit = (course: Course) => {
+    setEditingCourse(course);
     setIsDialogOpen(true);
   };
 
   //  Open add dialog
   const handleAdd = () => {
-    setEditingMeal(null);
+    setEditingCourse(null);
     setIsDialogOpen(true);
   };
 
   //  After successful add/edit
-  const handleMealSaved = (savedMeal: Meal) => {
-    if (editingMeal) {
+  const handleCourseSaved = (savedCourse: Course) => {
+    if (editingCourse) {
       // Update existing
-      setMeals(meals.map((m) => (m.id === savedMeal.id ? savedMeal : m)));
+      setCourses(courses.map((m) => (m.id === savedCourse.id ? savedCourse : m)));
     } else {
       // Add new
-      setMeals([savedMeal, ...meals]);
+      setCourses([savedCourse, ...courses]);
     }
     setIsDialogOpen(false);
-    setEditingMeal(null);
+    setEditingCourse(null);
   };
 
   return (
@@ -134,10 +134,10 @@ export default function ProviderMenuPage() {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">
-                My Menu
+                My Courses
               </h1>
               <p className="text-zinc-500 dark:text-zinc-400 text-sm mt-0.5">
-                Manage your meals
+                Manage your courses
               </p>
             </div>
             <Button
@@ -145,7 +145,7 @@ export default function ProviderMenuPage() {
               className="rounded-full bg-gradient-to-r from-orange-500 to-rose-500 hover:from-orange-600 hover:to-rose-600 border-0 text-white gap-2"
             >
               <Plus className="w-4 h-4" />
-              Add New Meal
+              Add New Course
             </Button>
           </div>
         </div>
@@ -167,39 +167,39 @@ export default function ProviderMenuPage() {
               </Card>
             ))}
           </div>
-        ) : meals.length === 0 ? (
+        ) : courses.length === 0 ? (
           // Empty State
           <div className="text-center py-24">
             <div className="w-24 h-24 rounded-full bg-orange-50 dark:bg-orange-950/30 flex items-center justify-center mx-auto mb-6">
               <Plus className="w-12 h-12 text-orange-400" />
             </div>
             <h2 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50 mb-2">
-              No meals yet
+              No courses yet
             </h2>
             <p className="text-zinc-500 dark:text-zinc-400 mb-8 max-w-sm mx-auto">
-              Start by adding your first meal to the menu
+              Start by adding your first course to the list
             </p>
             <Button
               onClick={handleAdd}
               className="rounded-full bg-gradient-to-r from-orange-500 to-rose-500 hover:from-orange-600 hover:to-rose-600 border-0 text-white px-8"
             >
-              Add Your First Meal
+              Add Your First Course
             </Button>
           </div>
         ) : (
-          // Meals Grid
+          // Courses Grid
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {meals.map((meal) => (
+            {courses.map((course) => (
               <Card
-                key={meal.id}
+                key={course.id}
                 className="overflow-hidden border border-zinc-200 dark:border-zinc-800"
               >
                 {/* Image */}
                 <div className="relative w-full aspect-video bg-zinc-100 dark:bg-zinc-800">
-                  {meal.image ? (
+                  {course.image ? (
                     <Image
-                      src={meal.image}
-                      alt={meal.name}
+                      src={course.image}
+                      alt={course.name}
                       fill
                       sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
                       className="object-cover"
@@ -214,22 +214,22 @@ export default function ProviderMenuPage() {
                 {/* Content */}
                 <div className="p-4">
                   <p className="text-xs text-zinc-400 uppercase tracking-wide mb-1">
-                    {meal.category.name}
+                    {course.category.name}
                   </p>
                   <h3 className="font-semibold text-zinc-900 dark:text-zinc-50 mb-2 line-clamp-1">
-                    {meal.name}
+                    {course.name}
                   </h3>
                   <p className="text-sm text-zinc-500 dark:text-zinc-400 line-clamp-2 mb-4">
-                    {meal.description || "No description"}
+                    {course.description || "No description"}
                   </p>
                   <p className="text-xl font-bold text-orange-600 dark:text-orange-400 mb-4">
-                    ৳{meal.price}
+                    ৳{course.price}
                   </p>
 
                   {/* Actions */}
                   <div className="flex gap-2">
                     <Button
-                      onClick={() => handleEdit(meal)}
+                      onClick={() => handleEdit(course)}
                       variant="outline"
                       size="sm"
                       className="flex-1 gap-2"
@@ -239,7 +239,7 @@ export default function ProviderMenuPage() {
                     </Button>
                     <Button
                       onClick={() => {
-                        setMealToDelete(meal.id);
+                        setCourseToDelete(course.id);
                         setDeleteDialogOpen(true);
                       }}
                       variant="destructive"
@@ -257,21 +257,21 @@ export default function ProviderMenuPage() {
         )}
       </div>
 
-      {/* Add/Edit Meal Dialog */}
-      <MealFormDialog
+      {/* Add/Edit Course Dialog */}
+      <CourseFormDialog
         open={isDialogOpen}
         onOpenChange={setIsDialogOpen}
-        meal={editingMeal}
-        onSuccess={handleMealSaved}
+        course={editingCourse}
+        onSuccess={handleCourseSaved}
       />
 
       {/* Delete Confirmation Dialog */}
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Meal?</AlertDialogTitle>
+            <AlertDialogTitle>Delete Course?</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete this meal? This action cannot be
+              Are you sure you want to delete this course? This action cannot be
               undone.
             </AlertDialogDescription>
           </AlertDialogHeader>

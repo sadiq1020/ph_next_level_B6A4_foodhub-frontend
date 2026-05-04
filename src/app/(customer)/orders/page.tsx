@@ -11,7 +11,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
-const CACHE_KEY = (userId: string) => `foodhub_orders_${userId}`;
+const CACHE_KEY = (userId: string) => `kitchenclass_orders_${userId}`;
 
 function getCached(userId: string): Order[] | null {
   try {

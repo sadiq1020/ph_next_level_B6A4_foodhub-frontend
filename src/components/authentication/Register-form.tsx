@@ -117,42 +117,68 @@ export function RegisterForm({ ...props }: React.ComponentProps<typeof Card>) {
   const selectedRole = watch("role");
 
   const onSubmit = async (data: RegisterFormData) => {
-    const toastId = toast.loading("Creating account...");
-    try {
-      // Step 1: Create user with Better Auth
-      const { data: authData, error } = await authClient.signUp.email({
-        name: data.name,
+  const toastId = toast.loading("Creating account...");
+  try {
+    // Step 1: Create user with Better Auth
+    const { data: authData, error } = await authClient.signUp.email({
+      name: data.name,
+      email: data.email,
+      password: data.password,
+      // @ts-expect-error - Better Auth additional fields
+      phone: data.phone || "",
+      role: data.role,
+    });
+
+    if (error) {
+      toast.error(error.message, { id: toastId });
+      return;
+    }
+
+    // Step 2: If Instructor, sign in first to establish session cookie,
+    // then create the profile. signUp alone doesn't set the cookie in time.
+    if (data.role === "INSTRUCTOR" && authData?.user) {
+      toast.loading("Setting up your instructor profile...", { id: toastId });
+
+      // Sign in to get a valid session cookie
+      const { error: signInError } = await authClient.signIn.email({
         email: data.email,
         password: data.password,
-        // @ts-expect-error - Better Auth additional fields
-        phone: data.phone || "",
-        role: data.role,
       });
 
-      if (error) {
-        toast.error(error.message, { id: toastId });
+      if (signInError) {
+        // User was created but profile couldn't be set up — still redirect to login
+        toast.success("Account created! Please log in to complete setup.", {
+          id: toastId,
+        });
+        router.push("/login");
         return;
       }
 
-      // Step 2: If Instructor, create profile
-      if (data.role === "INSTRUCTOR" && authData?.user) {
-        await api.post("/instructor/profile", {
-          businessName: data.businessName,
-          address: data.address,
-          description: data.description || "",
-          userId: authData.user.id,
-        });
-      }
-
-      // Step 3: Success!
-      toast.success("Account created successfully! Please log in.", {
-        id: toastId,
+      // Now the session cookie exists — create the instructor profile
+      await api.post("/instructor/profile", {
+        businessName: data.businessName,
+        address: data.address,
+        description: data.description || "",
       });
-      router.push("/login");
-    } catch (err) {
-      toast.error("Something went wrong, please try again", { id: toastId });
+
+      toast.success(
+        "Account created! Your instructor application is pending approval.",
+        { id: toastId },
+      );
+      // Redirect to instructor dashboard — they're already signed in
+      router.push("/instructor/dashboard");
+      return;
     }
-  };
+
+    // Step 3: Customer registration — just go to login
+    toast.success("Account created successfully! Please log in.", {
+      id: toastId,
+    });
+    router.push("/login");
+  } catch (err) {
+    toast.error("Something went wrong, please try again", { id: toastId });
+  }
+};
 
   return (
     <Card {...props}>

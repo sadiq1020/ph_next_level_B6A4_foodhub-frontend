@@ -1,9 +1,6 @@
-const InstructorProfilePage = () => {
-  return (
-    <div>
-      <h1>This is Instructor Profile Page</h1>
-    </div>
-  );
-};
-
-export default InstructorProfilePage;
+// This page intentionally renders the shared profile page.
+// All three roles (CUSTOMER, INSTRUCTOR, ADMIN) use the same
+// profile UI — the component handles role-specific sections internally.
+import ProfilePage from "@/app/(customer)/profile/page";
+ 
+export default ProfilePage;

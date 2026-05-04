@@ -25,7 +25,7 @@ export function CartItem({ item, onUpdateQuantity, onRemove }: CartItemProps) {
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center">
-            <span className="text-2xl">🍽️</span>
+            <span className="text-2xl">🎬</span>
           </div>
         )}
       </div>

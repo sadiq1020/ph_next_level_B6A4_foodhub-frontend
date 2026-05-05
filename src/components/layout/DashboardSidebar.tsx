@@ -6,6 +6,7 @@ import {
     BookOpen,
     ChefHat,
     GraduationCap,
+    Home,
     LayoutDashboard,
     List,
     LogOut,
@@ -29,11 +30,11 @@ type NavItem = {
 };
 
 const ADMIN_NAV: NavItem[] = [
-  { label: "Dashboard",    href: "/admin/dashboard",    icon: LayoutDashboard },
-  { label: "Users",        href: "/admin/users",        icon: Users            },
-  { label: "Instructors",  href: "/admin/instructors",  icon: GraduationCap    },
-  { label: "Enrollments",  href: "/admin/orders",       icon: Package          },
-  { label: "Categories",   href: "/admin/categories",   icon: List             },
+  { label: "Dashboard",   href: "/admin/dashboard",   icon: LayoutDashboard },
+  { label: "Users",       href: "/admin/users",        icon: Users           },
+  { label: "Instructors", href: "/admin/instructors",  icon: GraduationCap   },
+  { label: "Enrollments", href: "/admin/orders",       icon: Package         },
+  { label: "Categories",  href: "/admin/categories",   icon: List            },
 ];
 
 const INSTRUCTOR_NAV: NavItem[] = [
@@ -44,8 +45,8 @@ const INSTRUCTOR_NAV: NavItem[] = [
 ];
 
 const CUSTOMER_NAV: NavItem[] = [
-  { label: "My Enrollments", href: "/orders",   icon: ShoppingBag },
-  { label: "Profile",        href: "/profile",  icon: User        },
+  { label: "My Enrollments", href: "/orders",  icon: ShoppingBag },
+  { label: "Profile",        href: "/profile", icon: User        },
 ];
 
 function getNavItems(role?: string): NavItem[] {
@@ -55,12 +56,11 @@ function getNavItems(role?: string): NavItem[] {
 }
 
 function getRoleLabel(role?: string) {
-  if (role === "ADMIN")      return { label: "Admin Panel",        icon: UserCog  };
-  if (role === "INSTRUCTOR") return { label: "Instructor Studio",  icon: ChefHat  };
+  if (role === "ADMIN")      return { label: "Admin Panel",       icon: UserCog };
+  if (role === "INSTRUCTOR") return { label: "Instructor Studio", icon: ChefHat };
   return { label: "My Account", icon: User };
 }
 
-// ── Single nav item ───────────────────────────────────
 function SidebarItem({
   item,
   collapsed,
@@ -98,7 +98,6 @@ function SidebarItem({
   );
 }
 
-// ── Sidebar ───────────────────────────────────────────
 export function DashboardSidebar({ role }: { role?: string }) {
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -117,7 +116,6 @@ export function DashboardSidebar({ role }: { role?: string }) {
 
   const user = session?.user as { name?: string; email?: string } | undefined;
 
-  // ── Shared sidebar content ────────────────────────
   const sidebarContent = (isMobile = false) => (
     <div className="flex flex-col h-full">
       {/* Role header */}
@@ -154,8 +152,23 @@ export function DashboardSidebar({ role }: { role?: string }) {
         ))}
       </nav>
 
-      {/* Sign out */}
-      <div className="p-2 border-t border-zinc-200 dark:border-zinc-800">
+      {/* Bottom: Home + Sign Out */}
+      <div className="p-2 border-t border-zinc-200 dark:border-zinc-800 space-y-1">
+        {/* Back to Home */}
+        <Link
+          href="/"
+          onClick={isMobile ? () => setMobileOpen(false) : undefined}
+          className={cn(
+            "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-zinc-50 transition-colors",
+            collapsed && !isMobile ? "justify-center" : "",
+          )}
+          title={collapsed && !isMobile ? "Back to Home" : undefined}
+        >
+          <Home className="w-5 h-5 shrink-0" />
+          {(!collapsed || isMobile) && <span>Back to Home</span>}
+        </Link>
+
+        {/* Sign Out */}
         <button
           onClick={handleSignOut}
           className={cn(
@@ -173,7 +186,7 @@ export function DashboardSidebar({ role }: { role?: string }) {
 
   return (
     <>
-      {/* ── Mobile toggle button ── */}
+      {/* Mobile toggle button */}
       <button
         onClick={() => setMobileOpen(true)}
         className="lg:hidden fixed bottom-6 right-6 z-40 w-12 h-12 rounded-full bg-orange-500 text-white shadow-lg flex items-center justify-center hover:bg-orange-600 transition-colors"
@@ -182,20 +195,18 @@ export function DashboardSidebar({ role }: { role?: string }) {
         <Menu className="w-5 h-5" />
       </button>
 
-      {/* ── Mobile overlay ── */}
+      {/* Mobile overlay */}
       {mobileOpen && (
         <div
           className="lg:hidden fixed inset-0 z-50 bg-black/50"
           onClick={() => setMobileOpen(false)}
         >
           <div
-            className="absolute left-0 top-0 bottom-0 w-64 bg-white dark:bg-zinc-900 shadow-xl"
+            className="absolute left-0 top-0 bottom-0 w-64 bg-white dark:bg-zinc-900 shadow-xl flex flex-col"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between px-4 py-3 border-b border-zinc-200 dark:border-zinc-800">
-              <span className="font-semibold text-zinc-900 dark:text-zinc-50">
-                Menu
-              </span>
+            <div className="flex items-center justify-between px-4 py-3 border-b border-zinc-200 dark:border-zinc-800 shrink-0">
+              <span className="font-semibold text-zinc-900 dark:text-zinc-50">Menu</span>
               <button
                 onClick={() => setMobileOpen(false)}
                 className="p-1 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800"
@@ -203,19 +214,21 @@ export function DashboardSidebar({ role }: { role?: string }) {
                 <X className="w-5 h-5 text-zinc-500" />
               </button>
             </div>
-            {sidebarContent(true)}
+            {/* flex-1 + overflow ensures Sign Out is always scrollable to */}
+            <div className="flex-1 overflow-y-auto">
+              {sidebarContent(true)}
+            </div>
           </div>
         </div>
       )}
 
-      {/* ── Desktop sidebar ── */}
+      {/* Desktop sidebar */}
       <aside
         className={cn(
           "hidden lg:flex flex-col shrink-0 bg-white dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-800 transition-all duration-300",
           collapsed ? "w-16" : "w-56",
         )}
       >
-        {/* Collapse toggle */}
         <button
           onClick={() => setCollapsed(!collapsed)}
           className={cn(

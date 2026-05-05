@@ -6,15 +6,15 @@ import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
 import { AdminOrderCard } from "@/components/admin/AdminOrderCard";
+import { Pagination } from "@/components/ui/Pagination";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
+import { usePagination } from "@/hooks/usePagination";
 import { api } from "@/lib/api";
 import { useSession } from "@/lib/auth-client";
-import { Order, EnrollmentItem as OrderItem } from "@/types";
-
-
+import { Order } from "@/types";
 
 type StatusFilter =
   | "ALL"
@@ -23,6 +23,8 @@ type StatusFilter =
   | "COMPLETED"
   | "EXPIRED"
   | "CANCELLED";
+
+const PER_PAGE = 10;
 
 export default function AdminOrdersPage() {
   const router = useRouter();
@@ -34,21 +36,26 @@ export default function AdminOrdersPage() {
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("ALL");
   const hasFetched = useRef(false);
 
+  const {
+    currentPage,
+    totalPages,
+    paginated,
+    setCurrentPage,
+    from,
+    to,
+    total,
+  } = usePagination(filteredOrders, PER_PAGE);
+
   // Protected route
   useEffect(() => {
-    if (!isPending && !session?.user) {
-      router.push("/login");
-    }
-
+    if (!isPending && !session?.user) router.push("/login");
     if (!isPending && session?.user) {
       const userRole = (session.user as { role?: string }).role;
-      if (userRole !== "ADMIN") {
-        router.push("/");
-      }
+      if (userRole !== "ADMIN") router.push("/");
     }
   }, [session, isPending, router]);
 
-  // Fetch orders — only once per mount, not every time session object re-renders
+  // Fetch orders — only once per mount
   useEffect(() => {
     if (!session?.user) return;
     if (hasFetched.current) return;
@@ -60,8 +67,7 @@ export default function AdminOrdersPage() {
         const data = await api.get("/orders/admin/all");
         setOrders(data.data || data);
         setFilteredOrders(data.data || data);
-      } catch (error) {
-        // console.error("Failed to fetch orders:", error);
+      } catch {
         toast.error("Failed to load orders");
       } finally {
         setIsLoading(false);
@@ -69,18 +75,16 @@ export default function AdminOrdersPage() {
     };
 
     fetchOrders();
-  }, [session?.user?.id]); // ✅ Stable string, not the whole session object
+  }, [session?.user?.id]);
 
   // Filter and search
   useEffect(() => {
     let result = orders;
 
-    // Filter by status
     if (statusFilter !== "ALL") {
       result = result.filter((order) => order.status === statusFilter);
     }
 
-    // Search by order number
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
       result = result.filter((order) =>
@@ -93,7 +97,7 @@ export default function AdminOrdersPage() {
 
   if (isPending) {
     return (
-      <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
+      <div className="bg-zinc-50 dark:bg-zinc-950">
         <div className="bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800">
           <div className="container mx-auto px-4 py-6">
             <Skeleton className="h-8 w-48 mb-2" />
@@ -126,22 +130,22 @@ export default function AdminOrdersPage() {
   };
 
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
+    <div className="bg-zinc-50 dark:bg-zinc-950">
       {/* Header */}
       <div className="bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800">
         <div className="container mx-auto px-4 py-6">
           <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">
-            Orders Overview
+            Enrollments Overview
           </h1>
           <p className="text-zinc-500 dark:text-zinc-400 text-sm mt-0.5">
-            View all orders across the platform
+            View all enrollments across the platform
           </p>
         </div>
       </div>
 
       <div className="container mx-auto px-4 py-8">
         {/* Search */}
-        <div className="mb-6">
+        <div className="mb-4">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-400" />
             <Input
@@ -154,7 +158,7 @@ export default function AdminOrdersPage() {
         </div>
 
         {/* Status Filter Tabs */}
-        <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
+        <div className="flex gap-2 mb-4 overflow-x-auto pb-1">
           {(
             [
               "ALL",
@@ -182,6 +186,13 @@ export default function AdminOrdersPage() {
           ))}
         </div>
 
+        {/* Result count */}
+        {!isLoading && filteredOrders.length > 0 && (
+          <p className="text-xs text-zinc-400 mb-4">
+            Showing {from}–{to} of {total} enrollment{total !== 1 ? "s" : ""}
+          </p>
+        )}
+
         {/* Orders List */}
         {isLoading ? (
           <div className="space-y-4">
@@ -206,11 +217,23 @@ export default function AdminOrdersPage() {
             </p>
           </div>
         ) : (
-          <div className="space-y-4">
-            {filteredOrders.map((order) => (
-              <AdminOrderCard key={order.id} order={order} />
-            ))}
-          </div>
+          <>
+            <div className="space-y-4">
+              {paginated.map((order) => (
+                <AdminOrderCard key={order.id} order={order} />
+              ))}
+            </div>
+
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={setCurrentPage}
+            />
+
+            <p className="text-center text-xs text-zinc-400 mt-3">
+              Page {currentPage} of {totalPages}
+            </p>
+          </>
         )}
       </div>
     </div>

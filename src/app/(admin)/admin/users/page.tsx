@@ -6,10 +6,12 @@ import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
 import { UserCard } from "@/components/admin/UserCard";
+import { Pagination } from "@/components/ui/Pagination";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
+import { usePagination } from "@/hooks/usePagination";
 import { api } from "@/lib/api";
 import { useSession } from "@/lib/auth-client";
 
@@ -26,6 +28,8 @@ type User = {
 
 type RoleFilter = "ALL" | "CUSTOMER" | "INSTRUCTOR" | "ADMIN";
 
+const PER_PAGE = 10;
+
 export default function AdminUsersPage() {
   const router = useRouter();
   const { data: session, isPending } = useSession();
@@ -36,17 +40,22 @@ export default function AdminUsersPage() {
   const [roleFilter, setRoleFilter] = useState<RoleFilter>("ALL");
   const hasFetched = useRef(false);
 
+  const {
+    currentPage,
+    totalPages,
+    paginated,
+    setCurrentPage,
+    from,
+    to,
+    total,
+  } = usePagination(filteredUsers, PER_PAGE);
+
   // Protected route
   useEffect(() => {
-    if (!isPending && !session?.user) {
-      router.push("/login");
-    }
-
+    if (!isPending && !session?.user) router.push("/login");
     if (!isPending && session?.user) {
       const userRole = (session.user as { role?: string }).role;
-      if (userRole !== "ADMIN") {
-        router.push("/");
-      }
+      if (userRole !== "ADMIN") router.push("/");
     }
   }, [session, isPending, router]);
 
@@ -62,8 +71,7 @@ export default function AdminUsersPage() {
         const data = await api.get("/users");
         setUsers(data.data || data);
         setFilteredUsers(data.data || data);
-      } catch (error) {
-        // console.error("Failed to fetch users:", error);
+      } catch {
         toast.error("Failed to load users");
       } finally {
         setIsLoading(false);
@@ -71,18 +79,16 @@ export default function AdminUsersPage() {
     };
 
     fetchUsers();
-  }, [session?.user?.id]); // ✅ Stable string, not the whole session object
+  }, [session?.user?.id]);
 
   // Filter and search
   useEffect(() => {
     let result = users;
 
-    // Filter by role
     if (roleFilter !== "ALL") {
       result = result.filter((user) => user.role === roleFilter);
     }
 
-    // Search by name or email
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
       result = result.filter(
@@ -103,11 +109,8 @@ export default function AdminUsersPage() {
     );
 
     try {
-      await api.patch(`/users/${userId}/status`, {
-        isActive: newStatus,
-      });
+      await api.patch(`/users/${userId}/status`, { isActive: newStatus });
 
-      // Update local state
       setUsers(
         users.map((user) =>
           user.id === userId ? { ...user, isActive: newStatus } : user,
@@ -127,7 +130,7 @@ export default function AdminUsersPage() {
 
   if (isPending) {
     return (
-      <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
+      <div className="bg-zinc-50 dark:bg-zinc-950">
         <div className="bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800">
           <div className="container mx-auto px-4 py-6">
             <Skeleton className="h-8 w-48 mb-2" />
@@ -158,7 +161,7 @@ export default function AdminUsersPage() {
   };
 
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
+    <div className="bg-zinc-50 dark:bg-zinc-950">
       {/* Header */}
       <div className="bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800">
         <div className="container mx-auto px-4 py-6">
@@ -173,7 +176,7 @@ export default function AdminUsersPage() {
 
       <div className="container mx-auto px-4 py-8">
         {/* Search */}
-        <div className="mb-6">
+        <div className="mb-4">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-400" />
             <Input
@@ -186,7 +189,7 @@ export default function AdminUsersPage() {
         </div>
 
         {/* Role Filter Tabs */}
-        <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
+        <div className="flex gap-2 mb-4 overflow-x-auto pb-1">
           {(["ALL", "CUSTOMER", "INSTRUCTOR", "ADMIN"] as RoleFilter[]).map(
             (role) => (
               <Button
@@ -200,12 +203,19 @@ export default function AdminUsersPage() {
                     : ""
                 }`}
               >
-                {role === "ALL" ? "All Users" : `${role.toLowerCase()}s`} (
-                {roleCounts[role]})
+                {role === "ALL" ? "All Users" : `${role.toLowerCase()}s`}{" "}
+                ({roleCounts[role]})
               </Button>
             ),
           )}
         </div>
+
+        {/* Result count */}
+        {!isLoading && filteredUsers.length > 0 && (
+          <p className="text-xs text-zinc-400 mb-4">
+            Showing {from}–{to} of {total} user{total !== 1 ? "s" : ""}
+          </p>
+        )}
 
         {/* Users Grid */}
         {isLoading ? (
@@ -231,15 +241,23 @@ export default function AdminUsersPage() {
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredUsers.map((user) => (
-              <UserCard
-                key={user.id}
-                user={user}
-                onToggleStatus={handleToggleStatus}
-              />
-            ))}
-          </div>
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {paginated.map((user) => (
+                <UserCard
+                  key={user.id}
+                  user={user}
+                  onToggleStatus={handleToggleStatus}
+                />
+              ))}
+            </div>
+
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={setCurrentPage}
+            />
+          </>
         )}
       </div>
     </div>

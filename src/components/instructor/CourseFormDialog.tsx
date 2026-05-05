@@ -33,35 +33,27 @@ import { Textarea } from "@/components/ui/textarea";
 import { api } from "@/lib/api";
 import type { Category, Course } from "@/types";
 
-// ── Zod Schema ─────────────────────────────────────────
-const courseSchema = z.object({
-  name: z.string().min(3, "Name must be at least 3 characters"),
-  description: z.string().optional(),
-  price: z.number().min(1, "Price must be at least 1"),
-  categoryId: z.string().min(1, "Category is required"),
-  image: z
-    .string()
-    .optional()
-    .refine(
-      (url) => {
-        // Allow empty string
-        if (!url || url === "") return true;
+// ── Zod Schema ────────────────────────────────────────
+const isValidUrl = (url: string | undefined) => {
+  if (!url || url === "") return true;
+  try {
+    new URL(url);
+    return true;
+  } catch {
+    return false;
+  }
+};
 
-        // Check if valid URL
-        try {
-          const urlObj = new URL(url);
-          const allowedDomains = ["images.unsplash.com"];
-          return allowedDomains.includes(urlObj.hostname);
-        } catch {
-          return false;
-        }
-      },
-      {
-        message:
-          "Image must be from images.unsplash.com or your CloudFront domain",
-      },
-    ),
-  tags: z.string().optional(),
+const courseSchema = z.object({
+  name:         z.string().min(3, "Name must be at least 3 characters"),
+  description:  z.string().optional(),
+  price:        z.number().min(1, "Price must be at least 1"),
+  categoryId:   z.string().min(1, "Category is required"),
+  image:        z.string().optional().refine(isValidUrl, { message: "Must be a valid URL" }),
+  videoUrl:     z.string().optional().refine(isValidUrl, { message: "Must be a valid YouTube URL" }),
+  difficulty:   z.string().optional(),
+  duration:     z.number().min(1).optional(),
+  lessonsCount: z.number().min(1).optional(),
 });
 
 type CourseFormData = z.infer<typeof courseSchema>;
@@ -69,7 +61,7 @@ type CourseFormData = z.infer<typeof courseSchema>;
 interface CourseFormDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  course: Course | null; // null = add mode, Course = edit mode
+  course: Course | null;
   onSuccess: (course: Course) => void;
 }
 
@@ -97,74 +89,67 @@ export function CourseFormDialog({
       price: 0,
       categoryId: "",
       image: "",
-      tags: "",
+      videoUrl: "",
+      difficulty: "",
+      duration: undefined,
+      lessonsCount: undefined,
     },
   });
 
-  const categoryId = watch("categoryId");
-  const tags = watch("tags");
+  const categoryId  = watch("categoryId");
+  const difficulty  = watch("difficulty");
 
-  //  Fetch categories
+  // Fetch categories when dialog opens
   useEffect(() => {
+    if (!open) return;
     const fetchCategories = async () => {
       try {
         setIsLoadingCategories(true);
         const data = await api.get("/categories");
         setCategories(data.data || data);
-      } catch (error) {
-        console.error("Failed to fetch categories:", error);
+      } catch {
+        // silently fail
       } finally {
         setIsLoadingCategories(false);
       }
     };
-
-    if (open) {
-      fetchCategories();
-    }
+    fetchCategories();
   }, [open]);
 
-  //  Pre-fill form when editing
+  // Pre-fill when editing
   useEffect(() => {
     if (course) {
       reset({
-        name: course.name,
-        description: course.description || "",
-        price: Number(course.price),
-        categoryId: course.category.id,
-        image: course.image || "",
-        tags: Array.isArray(course.tags)
-          ? course.tags[0] || ""
-          : (course as any).dietary?.[0] || "",
+        name:         course.name,
+        description:  course.description || "",
+        price:        Number(course.price),
+        categoryId:   course.category.id,
+        image:        course.image || "",
+        videoUrl:     course.videoUrl || "",
+        difficulty:   course.difficulty || "",
+        duration:     course.duration ?? undefined,
+        lessonsCount: course.lessonsCount ?? undefined,
       });
     } else {
       reset({
-        name: "",
-        description: "",
-        price: 0,
-        categoryId: "",
-        image: "",
-        tags: "",
+        name: "", description: "", price: 0, categoryId: "",
+        image: "", videoUrl: "", difficulty: "",
+        duration: undefined, lessonsCount: undefined,
       });
     }
   }, [course, reset]);
 
-  //  Submit handler - updated
   const onSubmit = async (data: CourseFormData) => {
-    const toastId = toast.loading(
-      course ? "Updating course..." : "Creating course...",
-    );
+    const toastId = toast.loading(course ? "Updating course..." : "Creating course...");
 
     try {
       let instructorId = course?.instructor?.id;
 
       if (!instructorId) {
-        try {
-          const profileResponse = await api.get("/instructor/profile");
-          instructorId = profileResponse.data?.id || profileResponse.id;
-        } catch (error) {
-          toast.error("Failed to get instructor profile. Please try again.", {
-            id: toastId,
-          });
+        const profileResponse = await api.get("/instructor/profile");
+        instructorId = profileResponse.data?.id || profileResponse.id;
+        if (!instructorId) {
+          toast.error("Failed to get instructor profile.", { id: toastId });
           return;
         }
       }
@@ -172,10 +157,13 @@ export function CourseFormDialog({
       const payload = {
         ...data,
         instructorId,
-        price: Number(data.price),
-        image: data.image || null,
-        tags: data.tags ? [data.tags] : null,
-        description: data.description || null,
+        price:        Number(data.price),
+        image:        data.image || null,
+        videoUrl:     data.videoUrl || null,
+        description:  data.description || null,
+        difficulty:   data.difficulty || null,
+        duration:     data.duration ?? null,
+        lessonsCount: data.lessonsCount ?? null,
       };
 
       let savedCourse;
@@ -191,12 +179,10 @@ export function CourseFormDialog({
         course ? "Course updated successfully!" : "Course created successfully!",
         { id: toastId },
       );
-
       onSuccess(savedCourse);
       reset();
     } catch (error: unknown) {
-      const message =
-        error instanceof Error ? error.message : "Failed to save course";
+      const message = error instanceof Error ? error.message : "Failed to save course";
       toast.error(message, { id: toastId });
     }
   };
@@ -207,9 +193,7 @@ export function CourseFormDialog({
         <DialogHeader>
           <DialogTitle>{course ? "Edit Course" : "Add New Course"}</DialogTitle>
           <DialogDescription>
-            {course
-              ? "Update your course details"
-              : "Fill in the details to add a new course"}
+            {course ? "Update your course details" : "Fill in the details to publish a new course"}
           </DialogDescription>
         </DialogHeader>
 
@@ -218,88 +202,43 @@ export function CourseFormDialog({
             {/* Name */}
             <Field data-invalid={!!errors.name}>
               <FieldLabel htmlFor="name">Course Name *</FieldLabel>
-              <Input
-                id="name"
-                placeholder="e.g., Advanced React Patterns"
-                {...register("name")}
-              />
+              <Input id="name" placeholder="e.g., Sourdough Bread Masterclass" {...register("name")} />
               {errors.name && <FieldError errors={[errors.name]} />}
             </Field>
 
             {/* Description */}
             <Field data-invalid={!!errors.description}>
               <FieldLabel htmlFor="description">Description</FieldLabel>
-              <Textarea
-                id="description"
-                placeholder="Describe your course..."
-                rows={3}
-                {...register("description")}
-              />
-              {errors.description && (
-                <FieldError errors={[errors.description]} />
-              )}
+              <Textarea id="description" placeholder="What will students learn?" rows={3} {...register("description")} />
+              {errors.description && <FieldError errors={[errors.description]} />}
             </Field>
 
             {/* Price */}
             <Field data-invalid={!!errors.price}>
-              <FieldLabel htmlFor="price">Price (৳) *</FieldLabel>
-              <Input
-                id="price"
-                type="number"
-                min="1"
-                placeholder="200"
-                {...register("price", { valueAsNumber: true })}
-              />
+              <FieldLabel htmlFor="price">Enrollment Fee (৳) *</FieldLabel>
+              <Input id="price" type="number" min="1" placeholder="1500" {...register("price", { valueAsNumber: true })} />
               {errors.price && <FieldError errors={[errors.price]} />}
             </Field>
 
             {/* Category */}
             <Field data-invalid={!!errors.categoryId}>
               <FieldLabel>Category *</FieldLabel>
-              <Select
-                value={categoryId}
-                onValueChange={(value) => setValue("categoryId", value)}
-                disabled={isLoadingCategories}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select a category" />
-                </SelectTrigger>
+              <Select value={categoryId} onValueChange={(v) => setValue("categoryId", v)} disabled={isLoadingCategories}>
+                <SelectTrigger><SelectValue placeholder="Select a category" /></SelectTrigger>
                 <SelectContent>
                   {categories.map((cat) => (
-                    <SelectItem key={cat.id} value={cat.id}>
-                      {cat.name}
-                    </SelectItem>
+                    <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
               {errors.categoryId && <FieldError errors={[errors.categoryId]} />}
             </Field>
 
-            {/* Image URL */}
-            <Field data-invalid={!!errors.image}>
-              <FieldLabel htmlFor="image">Image URL</FieldLabel>
-              <Input
-                id="image"
-                type="url"
-                placeholder="https://example.com/image.jpg"
-                {...register("image")}
-              />
-              <FieldDescription>
-                Enter a valid image URL (optional)
-              </FieldDescription>
-              {errors.image && <FieldError errors={[errors.image]} />}
-            </Field>
-
-            {/* Tags */}
+            {/* Difficulty */}
             <Field>
               <FieldLabel>Difficulty Level</FieldLabel>
-              <Select
-                value={tags}
-                onValueChange={(value) => setValue("tags", value)}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select difficulty (optional)" />
-                </SelectTrigger>
+              <Select value={difficulty} onValueChange={(v) => setValue("difficulty", v)}>
+                <SelectTrigger><SelectValue placeholder="Select difficulty (optional)" /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="BEGINNER">Beginner</SelectItem>
                   <SelectItem value="INTERMEDIATE">Intermediate</SelectItem>
@@ -307,16 +246,49 @@ export function CourseFormDialog({
                 </SelectContent>
               </Select>
             </Field>
+
+            {/* Duration */}
+            <Field data-invalid={!!errors.duration}>
+              <FieldLabel htmlFor="duration">Total Duration (minutes)</FieldLabel>
+              <Input id="duration" type="number" min="1" placeholder="180" {...register("duration", { valueAsNumber: true })} />
+              <FieldDescription>Total length of all lessons combined</FieldDescription>
+              {errors.duration && <FieldError errors={[errors.duration]} />}
+            </Field>
+
+            {/* Lessons Count */}
+            <Field data-invalid={!!errors.lessonsCount}>
+              <FieldLabel htmlFor="lessonsCount">Number of Lessons</FieldLabel>
+              <Input id="lessonsCount" type="number" min="1" placeholder="12" {...register("lessonsCount", { valueAsNumber: true })} />
+              {errors.lessonsCount && <FieldError errors={[errors.lessonsCount]} />}
+            </Field>
+
+            {/* Thumbnail URL */}
+            <Field data-invalid={!!errors.image}>
+              <FieldLabel htmlFor="image">Thumbnail URL</FieldLabel>
+              <Input id="image" type="url" placeholder="https://images.unsplash.com/..." {...register("image")} />
+              <FieldDescription>Cover image for your course (any image URL)</FieldDescription>
+              {errors.image && <FieldError errors={[errors.image]} />}
+            </Field>
+
+            {/* Preview Video URL — YouTube */}
+            <Field data-invalid={!!errors.videoUrl}>
+              <FieldLabel htmlFor="videoUrl">Preview Video URL</FieldLabel>
+              <Input
+                id="videoUrl"
+                type="url"
+                placeholder="https://www.youtube.com/watch?v=..."
+                {...register("videoUrl")}
+              />
+              <FieldDescription>
+                YouTube video shown as a preview on the course detail page. Paste the full watch URL.
+              </FieldDescription>
+              {errors.videoUrl && <FieldError errors={[errors.videoUrl]} />}
+            </Field>
           </FieldGroup>
 
           {/* Actions */}
           <div className="flex justify-end gap-3 pt-4">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-              disabled={isSubmitting}
-            >
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isSubmitting}>
               Cancel
             </Button>
             <Button

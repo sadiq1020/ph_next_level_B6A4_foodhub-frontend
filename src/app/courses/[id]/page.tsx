@@ -37,6 +37,32 @@ const formatDuration = (minutes: number) => {
   return h > 0 ? `${h}h ${m > 0 ? `${m}m` : ""}`.trim() : `${m}m`;
 };
 
+// ── Extract YouTube embed URL from any YouTube link ──
+function getYouTubeEmbedUrl(url: string): string | null {
+  try {
+    const parsed = new URL(url);
+
+    // Handle: youtube.com/watch?v=VIDEO_ID
+    if (parsed.hostname.includes("youtube.com") && parsed.searchParams.get("v")) {
+      return `https://www.youtube.com/embed/${parsed.searchParams.get("v")}`;
+    }
+
+    // Handle: youtu.be/VIDEO_ID
+    if (parsed.hostname === "youtu.be") {
+      return `https://www.youtube.com/embed${parsed.pathname}`;
+    }
+
+    // Handle: youtube.com/embed/VIDEO_ID (already an embed URL)
+    if (parsed.hostname.includes("youtube.com") && parsed.pathname.startsWith("/embed/")) {
+      return url;
+    }
+
+    return null;
+  } catch {
+    return null;
+  }
+}
+
 // ── Star renderer ─────────────────────────────────────
 function StarRating({ rating }: { rating: number }) {
   return (
@@ -219,6 +245,26 @@ export default async function CourseDetailPage({
             />
           </div>
         </div>
+
+        {/* ── Preview Video ── */}
+{course.videoUrl && getYouTubeEmbedUrl(course.videoUrl) && (
+  <div className="mb-12">
+    <h2 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50 mb-4">
+      Course Preview
+    </h2>
+    <div className="relative w-full aspect-video rounded-2xl overflow-hidden bg-zinc-900">
+      <iframe
+        src={`${getYouTubeEmbedUrl(course.videoUrl)}?rel=0&modestbranding=1`}
+        title={`${course.name} preview`}
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowFullScreen
+        className="absolute inset-0 w-full h-full"
+      />
+    </div>
+  </div>
+)}
+
+{/* ── Reviews Section ── */}
 
         {/* ── Reviews Section ── */}
         <div className="border-t border-zinc-200 dark:border-zinc-800 pt-10">

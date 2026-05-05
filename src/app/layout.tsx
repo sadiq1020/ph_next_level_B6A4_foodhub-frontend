@@ -1,5 +1,4 @@
-import { Footer } from "@/components/layout/Footer";
-import { Navbar } from "@/components/layout/Navbar";
+import { PublicChrome } from "@/components/layout/PublicChrome";
 import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/providers/ThemeProvider";
 import type { Metadata } from "next";
@@ -32,22 +31,17 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         suppressHydrationWarning
       >
-        {/* suggested from online - Error boundary */}
-        {/* <ErrorBoundary> */}
-        <div>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
-          >
-            <Navbar />
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <PublicChrome>
             {children}
-            <Toaster />
-            <Footer />
-          </ThemeProvider>
-        </div>
-        {/* </ErrorBoundary> */}
+          </PublicChrome>
+          <Toaster />
+        </ThemeProvider>
       </body>
     </html>
   );

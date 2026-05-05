@@ -11,15 +11,16 @@ import {
 } from "@/components/ui/select";
 import { api } from "@/lib/api";
 import { Category } from "@/types";
-import { SlidersHorizontal, X } from "lucide-react";
+import { ArrowUpDown, SlidersHorizontal, X } from "lucide-react";
 import { useEffect, useState } from "react";
 
 export type FilterState = {
   search: string;
   categoryId: string;
-  difficulty: string;   // was: dietary (multi) — now single select
+  difficulty: string;
   minPrice: string;
   maxPrice: string;
+  sort: string;  // ← new
 };
 
 const DIFFICULTY_OPTIONS = [
@@ -43,12 +44,20 @@ const DIFFICULTY_OPTIONS = [
   },
 ];
 
+const SORT_OPTIONS = [
+  { value: "newest",       label: "Newest First" },
+  { value: "price_asc",   label: "Price: Low to High" },
+  { value: "price_desc",  label: "Price: High to Low" },
+  { value: "most_reviewed", label: "Most Reviewed" },
+];
+
 const DEFAULT_FILTERS: FilterState = {
   search: "",
   categoryId: "",
   difficulty: "",
   minPrice: "",
   maxPrice: "",
+  sort: "newest",
 };
 
 interface CourseFiltersProps {
@@ -91,7 +100,6 @@ export function CourseFilters({ onFilterChange, initialFilters }: CourseFiltersP
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchInput]);
 
-  // Toggle difficulty (click again to deselect)
   const toggleDifficulty = (value: string) => {
     const next = filters.difficulty === value ? "" : value;
     handleFilterChange("difficulty", next);
@@ -108,7 +116,8 @@ export function CourseFilters({ onFilterChange, initialFilters }: CourseFiltersP
     filters.categoryId ||
     filters.difficulty ||
     filters.minPrice ||
-    filters.maxPrice;
+    filters.maxPrice ||
+    filters.sort !== "newest";
 
   return (
     <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-5 space-y-5">
@@ -129,6 +138,29 @@ export function CourseFilters({ onFilterChange, initialFilters }: CourseFiltersP
             Clear All
           </Button>
         )}
+      </div>
+
+      {/* Sort — new */}
+      <div className="space-y-1.5">
+        <label className="text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wide flex items-center gap-1.5">
+          <ArrowUpDown className="w-3 h-3" />
+          Sort By
+        </label>
+        <Select
+          value={filters.sort || "newest"}
+          onValueChange={(value) => handleFilterChange("sort", value)}
+        >
+          <SelectTrigger className="rounded-xl border-zinc-200 dark:border-zinc-700">
+            <SelectValue placeholder="Newest First" />
+          </SelectTrigger>
+          <SelectContent>
+            {SORT_OPTIONS.map((opt) => (
+              <SelectItem key={opt.value} value={opt.value}>
+                {opt.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       {/* Search */}
@@ -169,7 +201,7 @@ export function CourseFilters({ onFilterChange, initialFilters }: CourseFiltersP
         </Select>
       </div>
 
-      {/* Difficulty — single select badges */}
+      {/* Difficulty */}
       <div className="space-y-1.5">
         <label className="text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wide">
           Difficulty

@@ -2,18 +2,21 @@
 
 import { CourseCard } from "@/components/courses/CourseCard";
 import { CourseFilters, FilterState } from "@/components/courses/CourseFilters";
+import { Pagination } from "@/components/ui/Pagination";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { api } from "@/lib/api";
 import { Course } from "@/types";
 import { GraduationCap } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useCallback, useEffect, useState } from "react";
+import { Suspense, useCallback, useEffect, useRef, useState } from "react";
+
+const LIMIT = 12;
 
 function CoursesGridSkeleton() {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
-      {Array.from({ length: 9 }).map((_, i) => (
+    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
+      {Array.from({ length: LIMIT }).map((_, i) => (
         <div
           key={i}
           className="rounded-xl overflow-hidden border border-zinc-200 dark:border-zinc-800"
@@ -37,20 +40,26 @@ function CoursesGridSkeleton() {
 function CoursesContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const gridRef = useRef<HTMLDivElement>(null);
 
   const [courses, setCourses] = useState<Course[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [totalCount, setTotalCount] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
+  const [currentPage, setCurrentPage] = useState(1);
 
-  const initialFilters = {
+  const initialFilters: FilterState = {
     search: searchParams.get("search") || "",
     categoryId: searchParams.get("category") || "",
     difficulty: "",
     minPrice: "",
     maxPrice: "",
+    sort: "newest",
   };
 
-  const fetchCourses = useCallback(async (filters: FilterState) => {
+  const [activeFilters, setActiveFilters] = useState<FilterState>(initialFilters);
+
+  const fetchCourses = useCallback(async (filters: FilterState, page = 1) => {
     setIsLoading(true);
     try {
       const params = new URLSearchParams();
@@ -59,24 +68,44 @@ function CoursesContent() {
       if (filters.difficulty) params.set("difficulty", filters.difficulty);
       if (filters.minPrice)   params.set("minPrice", filters.minPrice);
       if (filters.maxPrice)   params.set("maxPrice", filters.maxPrice);
+      if (filters.sort)       params.set("sort", filters.sort);
+      params.set("page", String(page));
+      params.set("limit", String(LIMIT));
 
-      const query = params.toString();
-      const data = await api.get(`/courses${query ? `?${query}` : ""}`);
-      const result = data.data || data;
+      const data = await api.get(`/courses?${params.toString()}`);
+      const result: Course[] = data.data || data;
+
       setCourses(Array.isArray(result) ? result : []);
-      setTotalCount(data.total || result.length || 0);
+      setTotalCount(data.total || 0);
+      setTotalPages(data.totalPages || 1);
+      setCurrentPage(page);
     } catch {
       setCourses([]);
       setTotalCount(0);
+      setTotalPages(1);
     } finally {
       setIsLoading(false);
     }
   }, []);
 
+  // Initial load
   useEffect(() => {
-    fetchCourses(initialFilters as FilterState);
+    fetchCourses(initialFilters, 1);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // When filters change reset to page 1
+  const handleFilterChange = (filters: FilterState) => {
+    setActiveFilters(filters);
+    setCurrentPage(1);
+    fetchCourses(filters, 1);
+  };
+
+  // Pagination click — scroll back to grid top
+  const handlePageChange = (page: number) => {
+    fetchCourses(activeFilters, page);
+    gridRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
 
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
@@ -84,7 +113,7 @@ function CoursesContent() {
       <div className="bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800">
         <div className="container mx-auto px-4 py-8">
           <h1 className="text-3xl font-bold text-zinc-900 dark:text-zinc-50">
-            Browse Courses
+            Explore Courses
           </h1>
           <p className="text-zinc-500 dark:text-zinc-400 mt-1">
             {isLoading
@@ -98,16 +127,16 @@ function CoursesContent() {
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Filters Sidebar */}
           <aside className="w-full lg:w-72 shrink-0">
-            <div className="sticky top-4">
+            <div className="sticky top-20">
               <CourseFilters
-                onFilterChange={fetchCourses}
+                onFilterChange={handleFilterChange}
                 initialFilters={initialFilters}
               />
             </div>
           </aside>
 
           {/* Courses Grid */}
-          <main className="flex-1">
+          <main className="flex-1" ref={gridRef}>
             {isLoading ? (
               <CoursesGridSkeleton />
             ) : courses.length === 0 ? (
@@ -130,11 +159,28 @@ function CoursesContent() {
                 </Button>
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
-                {courses.map((course) => (
-                  <CourseCard key={course.id} course={course} />
-                ))}
-              </div>
+              <>
+                {/* ── Grid — xl:grid-cols-4 ── */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
+                  {courses.map((course) => (
+                    <CourseCard key={course.id} course={course} />
+                  ))}
+                </div>
+
+                {/* ── Pagination ── */}
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  onPageChange={handlePageChange}
+                />
+
+                {/* Page info */}
+                {totalPages > 1 && (
+                  <p className="text-center text-xs text-zinc-400 mt-3">
+                    Page {currentPage} of {totalPages} — {totalCount} courses total
+                  </p>
+                )}
+              </>
             )}
           </main>
         </div>

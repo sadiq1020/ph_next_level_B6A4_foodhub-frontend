@@ -1,5 +1,14 @@
 "use client";
 
+import { QuickActionCard } from "@/components/admin/QuickActionCard";
+import { StatCard } from "@/components/admin/StatCard";
+import {
+  EnrollmentTrendChart,
+  RevenueBarChart,
+  UserRolePieChart,
+} from "@/components/charts/AdminCharts";
+import { api } from "@/lib/api";
+import { useSession } from "@/lib/auth-client";
 import {
   GraduationCap,
   List,
@@ -12,18 +21,13 @@ import {
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
-import { QuickActionCard } from "@/components/admin/QuickActionCard";
-import { StatCard } from "@/components/admin/StatCard";
-import { api } from "@/lib/api";
-import { useSession } from "@/lib/auth-client";
-
 type AdminStats = {
   totalUsers: number;
   totalCustomers: number;
   totalInstructors: number;
   totalOrders: number;
   totalCategories: number;
-  pendingInstructors: number; // ← new field from backend
+  pendingInstructors: number;
 };
 
 export default function AdminDashboard() {
@@ -33,6 +37,13 @@ export default function AdminDashboard() {
   const [isLoading, setIsLoading] = useState(true);
   const hasFetched = useRef(false);
 
+  useEffect(() => {
+    if (!isPending && !session?.user) router.push("/login");
+    if (!isPending && session?.user) {
+      const userRole = (session.user as { role?: string }).role;
+      if (userRole !== "ADMIN") router.push("/");
+    }
+  }, [session, isPending, router]);
 
   useEffect(() => {
     if (!session?.user) return;
@@ -71,7 +82,7 @@ export default function AdminDashboard() {
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950" suppressHydrationWarning>
       {/* Header */}
       <div className="bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800">
-        <div className="container mx-auto px-4 py-8" suppressHydrationWarning>
+        <div className="container mx-auto px-4 py-8">
           <div className="flex items-center gap-4">
             <div className="w-16 h-16 rounded-full bg-orange-100 dark:bg-orange-950/50 flex items-center justify-center">
               <Settings className="w-8 h-8 text-orange-500" />
@@ -89,8 +100,7 @@ export default function AdminDashboard() {
       </div>
 
       <div className="container mx-auto px-4 py-8">
-
-        {/* ── Pending applications alert ─────────────────── */}
+        {/* Pending applications alert */}
         {!isLoading && pendingCount > 0 && (
           <div
             onClick={() => router.push("/admin/instructors")}
@@ -149,7 +159,39 @@ export default function AdminDashboard() {
           />
         </div>
 
+        {/* ── Charts ── */}
+        <div className="mb-8">
+          <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50 mb-4">
+            Analytics
+          </h2>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            <EnrollmentTrendChart />
+            <RevenueBarChart />
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <UserRolePieChart />
+            {/* Spacer — pie chart takes 1/3, rest is breathing room */}
+            <div className="lg:col-span-2 bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-6 flex items-center justify-center">
+              <div className="text-center">
+                <p className="text-2xl font-bold text-zinc-900 dark:text-zinc-50 mb-1">
+                  {stats?.totalOrders || 0}
+                </p>
+                <p className="text-sm text-zinc-500 dark:text-zinc-400">
+                  Total enrollments across all courses
+                </p>
+                <p className="text-xs text-zinc-400 mt-3">
+                  {stats?.totalInstructors || 0} instructors •{" "}
+                  {stats?.totalCategories || 0} categories
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Quick Actions */}
+        <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50 mb-4">
+          Quick Actions
+        </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <QuickActionCard
             href="/admin/users"

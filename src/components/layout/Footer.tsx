@@ -24,9 +24,10 @@ const Footer = () => {
           title: "Quick Links",
           links: [
             { text: "Home", url: "/" },
-            { text: "Browse Courses", url: "/courses" },
+            { text: "Explore Courses", url: "/courses" },
             { text: "Instructors", url: "/instructors" },
-            { text: "Contact", url: "#contact" },
+            { text: "About Us", url: "/about" },
+            { text: "Contact", url: "/contact" },
           ],
         },
         {

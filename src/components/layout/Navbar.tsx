@@ -37,8 +37,10 @@ import { ModeToggle } from "./ModeToggle";
 
 // nav links
 const navLinks = [
-  { title: "Browse Courses", url: "/courses" },
+  { title: "Explore Courses", url: "/courses" },
   { title: "Instructors", url: "/instructors" },
+  { title: "About", url: "/about" },
+  { title: "Contact", url: "/contact" },
 ];
 
 const Navbar = ({ className }: { className?: string }) => {
@@ -178,8 +180,10 @@ const Navbar = ({ className }: { className?: string }) => {
   };
 
   return (
-    <section className={cn("py-4", className)}>
-      <div className="container mx-auto py-4">
+   <section className={cn("py-2 sticky top-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border", className)}>
+
+
+      <div className="container mx-auto py-2">
         {/* Desktop Menu */}
         <nav className="hidden items-center justify-between lg:flex">
           {/* Left: Logo + Nav Links */}

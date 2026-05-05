@@ -11,7 +11,7 @@ import { GraduationCap } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 
-const LIMIT = 12;
+const LIMIT = 8;
 
 function CoursesGridSkeleton() {
   return (
